@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:recolf/camera/view/draw_page.dart';
 import 'package:recolf/camera/view/video_page.dart';
 import 'package:recolf/camera/view/camera_page.dart';
 
@@ -33,6 +34,11 @@ class MyApp extends StatelessWidget {
                 return VideoPage(path: path!);
               }),
         ],
+      ),
+      GoRoute(
+        path: '/draw',
+        builder: (BuildContext context, GoRouterState state) =>
+            const DrawPage(),
       ),
     ],
   );
