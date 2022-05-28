@@ -1,16 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:recolf/camera/components/circle_shape.dart';
+import 'package:recolf/camera/components/line_shape.dart';
 
-import '../components/line_shape.dart';
+const _isLineMode = false;
 
-class Line {
+abstract class Shape {
+  Shape({
+    required this.active,
+  });
+  bool active;
+}
+
+class Line extends Shape {
   Line({
     required this.p1,
     required this.p2,
-    required this.active,
-  });
+    required bool active,
+  }) : super(active: active);
   Offset p1;
   Offset p2;
-  bool active;
+}
+
+class Circle extends Shape {
+  Circle({
+    required this.topLeft,
+    required this.bottomRight,
+    required bool active,
+  }) : super(active: active);
+  Offset topLeft;
+  Offset bottomRight;
 }
 
 class DrawPage extends StatefulWidget {
@@ -21,11 +39,10 @@ class DrawPage extends StatefulWidget {
 }
 
 class _DrawPageState extends State<DrawPage> {
-  final lines = <Line>[];
+  final shapes = <Shape>[];
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Scaffold(
       body: Stack(
         children: [
@@ -33,36 +50,75 @@ class _DrawPageState extends State<DrawPage> {
             onPanStart: (details) {
               setState(
                 () {
-                  lines
-                    ..deactivate()
-                    ..add(
-                      Line(
-                        p1: Offset(
-                          details.globalPosition.dx,
-                          details.globalPosition.dy,
+                  if (_isLineMode) {
+                    shapes
+                      ..deactivate()
+                      ..add(
+                        Line(
+                          p1: Offset(
+                            details.globalPosition.dx,
+                            details.globalPosition.dy,
+                          ),
+                          p2: Offset(
+                            details.globalPosition.dx,
+                            details.globalPosition.dy,
+                          ),
+                          active: true,
                         ),
-                        p2: Offset(
-                          details.globalPosition.dx,
-                          details.globalPosition.dy,
+                      );
+                  } else {
+                    shapes
+                      ..deactivate()
+                      ..add(
+                        Circle(
+                          topLeft: Offset(
+                            details.globalPosition.dx,
+                            details.globalPosition.dy,
+                          ),
+                          bottomRight: Offset(
+                            details.globalPosition.dx,
+                            details.globalPosition.dy,
+                          ),
+                          active: true,
                         ),
-                        active: true,
-                      ),
-                    );
+                      );
+                  }
                 },
               );
             },
             onPanUpdate: (details) {
-              final line = lines.firstWhere(
+              final shape = shapes.firstWhere(
                 (e) => e.active == true,
               );
-              setState(
-                () {
-                  line.p2 = Offset(
-                    details.globalPosition.dx,
-                    details.globalPosition.dy,
-                  );
-                },
-              );
+
+              if (shape is Line) {
+                setState(
+                  () {
+                    shape.p2 = Offset(
+                      details.globalPosition.dx,
+                      details.globalPosition.dy,
+                    );
+                  },
+                );
+              } else if (shape is Circle) {
+                var d = 0.0;
+                if ((details.globalPosition - shape.topLeft).dx >
+                    (details.globalPosition - shape.topLeft).dy) {
+                  d = (details.globalPosition - shape.topLeft).dx;
+                } else {
+                  d = (details.globalPosition - shape.topLeft).dy;
+                }
+
+                if (d < 0) {
+                  return;
+                }
+
+                setState(
+                  () {
+                    shape.bottomRight = shape.topLeft + Offset(d, d);
+                  },
+                );
+              }
             },
             child: Container(
               color: const Color(0xffFFFFFF),
@@ -70,47 +126,88 @@ class _DrawPageState extends State<DrawPage> {
               width: double.infinity,
             ),
           ),
-          ...lines
-              .map(
-                (line) => LineShape(
-                  p1: line.p1,
-                  p2: line.p2,
-                  active: line.active,
+          ...shapes.map(
+            (shape) {
+              if (shape is Line) {
+                return LineShape(
+                  p1: shape.p1,
+                  p2: shape.p2,
+                  active: shape.active,
                   updateP1: (delta) {
                     setState(
                       () {
-                        line.p1 += delta;
+                        shape.p1 += delta;
                       },
                     );
                   },
                   updateP2: (delta) {
                     setState(
                       () {
-                        line.p2 += delta;
+                        shape.p2 += delta;
                       },
                     );
                   },
                   onTap: () {
                     setState(
                       () {
-                        if (!line.active) {
-                          lines.deactivate();
+                        if (!shape.active) {
+                          shapes.deactivate();
                         }
-                        line.active = !line.active;
-                        lines.sortByActivate();
+                        shape.active = !shape.active;
+                        shapes.sortByActivate();
                       },
                     );
                   },
-                ),
-              )
-              .toList()
+                );
+              } else if (shape is Circle) {
+                return CircleShape(
+                  topLeft: shape.topLeft,
+                  bottomRight: shape.bottomRight,
+                  active: shape.active,
+                  translation: (delta) {
+                    setState(() {
+                      shape
+                        ..topLeft += delta
+                        ..bottomRight += delta;
+                    });
+                  },
+                  updateTopLeft: (newTopLeft) {
+                    setState(
+                      () {
+                        shape.topLeft = newTopLeft;
+                      },
+                    );
+                  },
+                  updateBottomRight: (newBottomRight) {
+                    setState(
+                      () {
+                        shape.bottomRight = newBottomRight;
+                      },
+                    );
+                  },
+                  onTap: () {
+                    setState(
+                      () {
+                        if (!shape.active) {
+                          shapes.deactivate();
+                        }
+                        shape.active = !shape.active;
+                        shapes.sortByActivate();
+                      },
+                    );
+                  },
+                );
+              }
+              return SizedBox.shrink();
+            },
+          ).toList()
         ],
       ),
     );
   }
 }
 
-extension Ex on List<Line> {
+extension Ex on List<Shape> {
   void deactivate() {
     forEach((e) => e.active = false);
   }
