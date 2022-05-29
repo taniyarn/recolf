@@ -5,19 +5,22 @@ class HomeVideo extends Video {
     required String id,
     required DateTime datetime,
     required String path,
-    required this.thumbnailPath,
+    this.thumbnailPath,
   }) : super(
           id: id,
           datetime: datetime,
           path: path,
         );
 
-  factory HomeVideo.fromVideo({required Video video}) {
+  factory HomeVideo.fromVideo({
+    required Video video,
+    required String? thumbnailPath,
+  }) {
     return HomeVideo(
       id: video.id,
       datetime: video.datetime,
       path: video.path,
-      thumbnailPath: '',
+      thumbnailPath: thumbnailPath,
     );
   }
 
@@ -34,5 +37,5 @@ class HomeVideo extends Video {
         thumbnailPath: thumbnailPath ?? this.thumbnailPath,
       );
 
-  final String thumbnailPath;
+  final String? thumbnailPath;
 }

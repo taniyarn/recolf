@@ -20,7 +20,7 @@ class VideoPage extends StatelessWidget {
         videoService: RepositoryProvider.of<VideoService>(context),
         id: id,
       ),
-      child: VideoScaffold(),
+      child: const VideoScaffold(),
     );
   }
 }

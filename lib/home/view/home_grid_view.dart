@@ -26,7 +26,7 @@ class HomeGridView extends StatelessWidget {
             itemCount: state.videos.length,
             itemBuilder: (context, listIndex) {
               return Thumbnail(
-                thumbnailPath: state.videos[listIndex].thumbnailPath,
+                thumbnailPath: state.videos[listIndex].thumbnailPath!,
                 id: state.videos[listIndex].id,
               );
             },
