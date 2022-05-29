@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-
-const _kRadius = 16.0;
-const _kTapRadius = 32.0;
-const _kStrokeWidth = 4.0;
-const _kTapStrokeWidth = 32.0;
-const primary = Color(0xff6750A4);
-const secondary = Color(0xffEADDFF);
+import 'package:recolf/camera/camera_const.dart';
+import 'package:recolf/video/components/corner_point.dart';
 
 class LineShape extends StatelessWidget {
   const LineShape({
@@ -45,49 +40,25 @@ class LineShape extends StatelessWidget {
       children.addAll(
         [
           Positioned(
-            left: p1.dx - _kTapRadius / 2,
-            top: p1.dy - _kTapRadius / 2,
+            left: p1.dx - kTapRadius / 2,
+            top: p1.dy - kTapRadius / 2,
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onPanUpdate: (details) {
                 updateP1(details.delta);
               },
-              child: Container(
-                alignment: Alignment.center,
-                width: _kTapRadius,
-                height: _kTapRadius,
-                child: Container(
-                  width: _kRadius,
-                  height: _kRadius,
-                  decoration: const BoxDecoration(
-                    color: primary,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
+              child: const CornerPoint(),
             ),
           ),
           Positioned(
-            left: p2.dx - _kTapRadius / 2,
-            top: p2.dy - _kTapRadius / 2,
+            left: p2.dx - kTapRadius / 2,
+            top: p2.dy - kTapRadius / 2,
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onPanUpdate: (details) {
                 updateP2(details.delta);
               },
-              child: Container(
-                alignment: Alignment.center,
-                width: _kTapRadius,
-                height: _kTapRadius,
-                child: Container(
-                  width: _kRadius,
-                  height: _kRadius,
-                  decoration: const BoxDecoration(
-                    color: primary,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
+              child: const CornerPoint(),
             ),
           ),
         ],
@@ -113,7 +84,7 @@ class ExampleLine extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = active ? primary : secondary
-      ..strokeWidth = _kStrokeWidth;
+      ..strokeWidth = kStrokeWidth;
 
     canvas.drawLine(p1, p2, paint);
   }
@@ -127,7 +98,7 @@ class ExampleLine extends CustomPainter {
   bool? hitTest(Offset position) {
     final dp = p2 - p1;
     final dn =
-        Offset(-dp.dy / dp.distance, dp.dx / dp.distance) * _kTapStrokeWidth;
+        Offset(-dp.dy / dp.distance, dp.dx / dp.distance) * kTapStrokeWidth;
 
     final path = Path()
       ..moveTo(p1.dx, p1.dy)

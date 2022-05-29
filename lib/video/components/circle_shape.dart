@@ -1,12 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-
-const _kRadius = 16.0;
-const _kTapRadius = 32.0;
-const _kStrokeWidth = 4.0;
-const primary = Color(0xff6750A4);
-const secondary = Color(0xffEADDFF);
+import 'package:recolf/camera/camera_const.dart';
+import 'package:recolf/video/components/corner_point.dart';
 
 class CircleShape extends StatelessWidget {
   const CircleShape({
@@ -38,7 +34,7 @@ class CircleShape extends StatelessWidget {
         },
         onTap: active ? null : onTap,
         child: CustomPaint(
-          painter: ExampleCircle(
+          painter: CirclePainter(
             topLeft: topLeft,
             bottomRight: bottomRight,
             active: active,
@@ -51,8 +47,8 @@ class CircleShape extends StatelessWidget {
       children.addAll(
         [
           Positioned(
-            left: topLeft.dx - _kTapRadius / 2,
-            top: topLeft.dy - _kTapRadius / 2,
+            left: topLeft.dx - kTapRadius / 2,
+            top: topLeft.dy - kTapRadius / 2,
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onPanUpdate: (details) {
@@ -69,24 +65,12 @@ class CircleShape extends StatelessWidget {
                 }
                 updateTopLeft(bottomRight - Offset(d, d));
               },
-              child: Container(
-                alignment: Alignment.center,
-                width: _kTapRadius,
-                height: _kTapRadius,
-                child: Container(
-                  width: _kRadius,
-                  height: _kRadius,
-                  decoration: const BoxDecoration(
-                    color: primary,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
+              child: const CornerPoint(),
             ),
           ),
           Positioned(
-            left: topLeft.dx - _kTapRadius / 2,
-            top: bottomRight.dy - _kTapRadius / 2,
+            left: topLeft.dx - kTapRadius / 2,
+            top: bottomRight.dy - kTapRadius / 2,
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onPanUpdate: (details) {
@@ -104,24 +88,12 @@ class CircleShape extends StatelessWidget {
                 updateTopLeft(Offset(bottomRight.dx - d, topLeft.dy));
                 updateBottomRight(Offset(bottomRight.dx, topLeft.dy + d));
               },
-              child: Container(
-                alignment: Alignment.center,
-                width: _kTapRadius,
-                height: _kTapRadius,
-                child: Container(
-                  width: _kRadius,
-                  height: _kRadius,
-                  decoration: const BoxDecoration(
-                    color: primary,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
+              child: const CornerPoint(),
             ),
           ),
           Positioned(
-            left: bottomRight.dx - _kTapRadius / 2,
-            top: topLeft.dy - _kTapRadius / 2,
+            left: bottomRight.dx - kTapRadius / 2,
+            top: topLeft.dy - kTapRadius / 2,
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onPanUpdate: (details) {
@@ -139,24 +111,12 @@ class CircleShape extends StatelessWidget {
                 updateTopLeft(Offset(topLeft.dx, bottomRight.dy - d));
                 updateBottomRight(Offset(topLeft.dx + d, bottomRight.dy));
               },
-              child: Container(
-                alignment: Alignment.center,
-                width: _kTapRadius,
-                height: _kTapRadius,
-                child: Container(
-                  width: _kRadius,
-                  height: _kRadius,
-                  decoration: const BoxDecoration(
-                    color: primary,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
+              child: const CornerPoint(),
             ),
           ),
           Positioned(
-            left: bottomRight.dx - _kTapRadius / 2,
-            top: bottomRight.dy - _kTapRadius / 2,
+            left: bottomRight.dx - kTapRadius / 2,
+            top: bottomRight.dy - kTapRadius / 2,
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onPanUpdate: (details) {
@@ -174,19 +134,7 @@ class CircleShape extends StatelessWidget {
 
                 updateBottomRight(topLeft + Offset(d, d));
               },
-              child: Container(
-                alignment: Alignment.center,
-                width: _kTapRadius,
-                height: _kTapRadius,
-                child: Container(
-                  width: _kRadius,
-                  height: _kRadius,
-                  decoration: const BoxDecoration(
-                    color: primary,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
+              child: const CornerPoint(),
             ),
           ),
         ],
@@ -198,8 +146,8 @@ class CircleShape extends StatelessWidget {
   }
 }
 
-class ExampleCircle extends CustomPainter {
-  const ExampleCircle({
+class CirclePainter extends CustomPainter {
+  const CirclePainter({
     required this.topLeft,
     required this.bottomRight,
     required this.active,
@@ -216,7 +164,7 @@ class ExampleCircle extends CustomPainter {
     final paint = Paint()
       ..color = active ? primary : secondary
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _kStrokeWidth;
+      ..strokeWidth = kStrokeWidth;
 
     canvas.drawCircle(center, radius, paint);
   }

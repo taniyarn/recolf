@@ -8,7 +8,7 @@ part of 'video.dart';
 
 class VideoAdapter extends TypeAdapter<Video> {
   @override
-  final int typeId = 1;
+  final int typeId = 0;
 
   @override
   Video read(BinaryReader reader) {
@@ -17,19 +17,25 @@ class VideoAdapter extends TypeAdapter<Video> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Video(
-      datetime: fields[0] as DateTime,
-      path: fields[1] as String,
+      id: fields[0] as String,
+      datetime: fields[1] as DateTime,
+      path: fields[2] as String,
+      shapes: (fields[3] as List).cast<Shape>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, Video obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(4)
       ..writeByte(0)
-      ..write(obj.datetime)
+      ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.path);
+      ..write(obj.datetime)
+      ..writeByte(2)
+      ..write(obj.path)
+      ..writeByte(3)
+      ..write(obj.shapes);
   }
 
   @override

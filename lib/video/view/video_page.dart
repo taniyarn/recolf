@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:recolf/models/video.dart';
+import 'package:recolf/video/view/draw_page.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPage extends StatefulWidget {
@@ -41,8 +42,6 @@ class _VideoPageState extends State<VideoPage> {
           IconButton(
             icon: const Icon(Icons.check),
             onPressed: () async {
-              final box = Hive.box<Video>('videoBox');
-              await box.add(Video(datetime: DateTime.now(), path: widget.path));
               context.go('/');
             },
           )
@@ -55,7 +54,12 @@ class _VideoPageState extends State<VideoPage> {
           if (state.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else {
-            return VideoPlayer(_videoPlayerController);
+            return Stack(
+              children: [
+                VideoPlayer(_videoPlayerController),
+                const DrawPage(),
+              ],
+            );
           }
         },
       ),

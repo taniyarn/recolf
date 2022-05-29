@@ -69,7 +69,7 @@ class CameraPageState extends State<CameraPage> {
 
             final xfile = await _controller.stopVideoRecording();
 
-            context.go('/camera/video?path=${xfile.path}');
+            context.go('/camera/preview?path=${xfile.path}');
           } catch (e) {
             // Todo: error handling
           }
