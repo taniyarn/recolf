@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -31,7 +29,6 @@ class CameraPageState extends State<CameraPage> {
   }
 
   Future<void> _setupCameras() async {
-    log('setup start');
     try {
       final cameras = await availableCameras();
       final camera = cameras.first;
@@ -54,7 +51,13 @@ class CameraPageState extends State<CameraPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Take a picture')),
       body: _isReady
-          ? CameraPreview(_controller)
+          ? SizedBox(
+              height: double.infinity,
+              width: double.infinity,
+              child: CameraPreview(
+                _controller,
+              ),
+            )
           : const Center(child: CircularProgressIndicator()),
       floatingActionButton: FloatingActionButton(
         // Provide an onPressed callback.

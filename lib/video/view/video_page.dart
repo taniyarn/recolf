@@ -43,7 +43,8 @@ class _VideoScaffoldState extends State<VideoScaffold> {
 
   Future<void> _initVideoPlayer() async {
     _videoPlayerController = VideoPlayerController.file(
-        File(context.read<VideoBloc>().state.video.path));
+      File(context.read<VideoBloc>().state.video.path),
+    );
     await _videoPlayerController.initialize();
     await _videoPlayerController.setLooping(true);
     await _videoPlayerController.play();

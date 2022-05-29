@@ -20,7 +20,8 @@ class _DrawPageState extends State<DrawPage> {
 
   @override
   void initState() {
-    shapes = context.read<VideoBloc>().state.video.shapes;
+    shapes = [...context.read<VideoBloc>().state.video.shapes];
+
     super.initState();
   }
 
@@ -180,7 +181,7 @@ class _DrawPageState extends State<DrawPage> {
                 },
               );
             }
-            return SizedBox.shrink();
+            return const SizedBox.shrink();
           },
         ).toList(),
         Positioned(

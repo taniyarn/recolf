@@ -19,6 +19,10 @@ class VideoService {
     return _videos.values.toList();
   }
 
+  Stream<List<Video>> subscribeVideos() {
+    return _videos.watch().map((_) => _videos.values.toList());
+  }
+
   Video getVideoFromId(String id) {
     return _videos.values.firstWhere((video) => video.id == id);
   }
