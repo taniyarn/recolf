@@ -44,9 +44,8 @@ class MyApp extends StatelessWidget {
       GoRoute(
         path: '/video',
         builder: (BuildContext context, GoRouterState state) {
-          final path = state.queryParams['path'];
-          final shapes = state.queryParams['shapes'];
-          return VideoPage(path: path!);
+          final id = state.queryParams['id'];
+          return VideoPage(id: id!);
         },
       ),
     ],

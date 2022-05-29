@@ -20,7 +20,7 @@ class VideoAdapter extends TypeAdapter<Video> {
       id: fields[0] as String,
       datetime: fields[1] as DateTime,
       path: fields[2] as String,
-      shapes: (fields[3] as List).cast<Shape>(),
+      shapes: (fields[3] as List?)?.cast<Shape>(),
     );
   }
 

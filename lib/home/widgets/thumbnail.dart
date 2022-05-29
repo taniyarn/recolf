@@ -8,13 +8,11 @@ class Thumbnail extends StatelessWidget {
   const Thumbnail({
     Key? key,
     required this.thumbnailPath,
-    required this.path,
-    required this.shapes,
+    required this.id,
   }) : super(key: key);
 
   final String thumbnailPath;
-  final String path;
-  final List<Shape> shapes;
+  final String id;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +24,7 @@ class Thumbnail extends StatelessWidget {
     );
     return GestureDetector(
       onTap: () {
-        context.go('/video?path=$path');
+        context.go('/video?id=$id');
       },
       child: image,
     );

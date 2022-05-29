@@ -27,8 +27,7 @@ class HomeGridView extends StatelessWidget {
             itemBuilder: (context, listIndex) {
               return Thumbnail(
                 thumbnailPath: state.videos[listIndex].thumbnailPath,
-                path: state.videos[listIndex].path,
-                shapes: const [],
+                id: state.videos[listIndex].id,
               );
             },
           );

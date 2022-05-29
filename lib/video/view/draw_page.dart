@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:recolf/models/shape.dart';
+import 'package:recolf/video/bloc/video_bloc.dart';
 import 'package:recolf/video/components/circle_shape.dart';
 import 'package:recolf/video/components/line_shape.dart';
+import 'package:recolf/video/util.dart';
 
 const _isLineMode = false;
 
@@ -13,7 +16,13 @@ class DrawPage extends StatefulWidget {
 }
 
 class _DrawPageState extends State<DrawPage> {
-  final shapes = <Shape>[];
+  late List<Shape> shapes;
+
+  @override
+  void initState() {
+    shapes = context.read<VideoBloc>().state.video.shapes;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,11 +38,11 @@ class _DrawPageState extends State<DrawPage> {
                     ..deactivate()
                     ..add(
                       Line(
-                        p1: Offset(
+                        p1: Vector(
                           details.globalPosition.dx,
                           details.globalPosition.dy,
                         ),
-                        p2: Offset(
+                        p2: Vector(
                           details.globalPosition.dx,
                           details.globalPosition.dy,
                         ),
@@ -45,11 +54,11 @@ class _DrawPageState extends State<DrawPage> {
                     ..deactivate()
                     ..add(
                       Circle(
-                        topLeft: Offset(
+                        topLeft: Vector(
                           details.globalPosition.dx,
                           details.globalPosition.dy,
                         ),
-                        bottomRight: Offset(
+                        bottomRight: Vector(
                           details.globalPosition.dx,
                           details.globalPosition.dy,
                         ),
@@ -68,7 +77,7 @@ class _DrawPageState extends State<DrawPage> {
             if (shape is Line) {
               setState(
                 () {
-                  shape.p2 = Offset(
+                  shape.p2 = Vector(
                     details.globalPosition.dx,
                     details.globalPosition.dy,
                   );
@@ -76,11 +85,11 @@ class _DrawPageState extends State<DrawPage> {
               );
             } else if (shape is Circle) {
               var d = 0.0;
-              if ((details.globalPosition - shape.topLeft).dx >
-                  (details.globalPosition - shape.topLeft).dy) {
-                d = (details.globalPosition - shape.topLeft).dx;
+              if ((details.globalPosition - shape.topLeft.toOffset()).dx >
+                  (details.globalPosition - shape.topLeft.toOffset()).dy) {
+                d = (details.globalPosition - shape.topLeft.toOffset()).dx;
               } else {
-                d = (details.globalPosition - shape.topLeft).dy;
+                d = (details.globalPosition - shape.topLeft.toOffset()).dy;
               }
 
               if (d < 0) {
@@ -89,7 +98,7 @@ class _DrawPageState extends State<DrawPage> {
 
               setState(
                 () {
-                  shape.bottomRight = shape.topLeft + Offset(d, d);
+                  shape.bottomRight = shape.topLeft + Vector(d, d);
                 },
               );
             }
@@ -103,20 +112,20 @@ class _DrawPageState extends State<DrawPage> {
           (shape) {
             if (shape is Line) {
               return LineShape(
-                p1: shape.p1,
-                p2: shape.p2,
+                p1: shape.p1.toOffset(),
+                p2: shape.p2.toOffset(),
                 active: shape.active,
                 updateP1: (delta) {
                   setState(
                     () {
-                      shape.p1 += delta;
+                      shape.p1 += delta.toVector();
                     },
                   );
                 },
                 updateP2: (delta) {
                   setState(
                     () {
-                      shape.p2 += delta;
+                      shape.p2 += delta.toVector();
                     },
                   );
                 },
@@ -134,27 +143,27 @@ class _DrawPageState extends State<DrawPage> {
               );
             } else if (shape is Circle) {
               return CircleShape(
-                topLeft: shape.topLeft,
-                bottomRight: shape.bottomRight,
+                topLeft: shape.topLeft.toOffset(),
+                bottomRight: shape.bottomRight.toOffset(),
                 active: shape.active,
                 translation: (delta) {
                   setState(() {
                     shape
-                      ..topLeft += delta
-                      ..bottomRight += delta;
+                      ..topLeft += delta.toVector()
+                      ..bottomRight += delta.toVector();
                   });
                 },
                 updateTopLeft: (newTopLeft) {
                   setState(
                     () {
-                      shape.topLeft = newTopLeft;
+                      shape.topLeft = newTopLeft.toVector();
                     },
                   );
                 },
                 updateBottomRight: (newBottomRight) {
                   setState(
                     () {
-                      shape.bottomRight = newBottomRight;
+                      shape.bottomRight = newBottomRight.toVector();
                     },
                   );
                 },
@@ -173,7 +182,22 @@ class _DrawPageState extends State<DrawPage> {
             }
             return SizedBox.shrink();
           },
-        ).toList()
+        ).toList(),
+        Positioned(
+          bottom: 100,
+          left: 100,
+          child: IconButton(
+            icon: const Icon(Icons.save),
+            onPressed: () {
+              context.read<VideoBloc>().add(
+                    VideoUpdated(
+                      id: context.read<VideoBloc>().state.video.id,
+                      shapes: shapes,
+                    ),
+                  );
+            },
+          ),
+        ),
       ],
     );
   }

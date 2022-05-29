@@ -3,13 +3,13 @@ import 'package:recolf/models/shape.dart';
 part 'video.g.dart';
 
 @HiveType(typeId: 0)
-class Video {
+class Video extends HiveObject {
   Video({
     required this.id,
     required this.datetime,
     required this.path,
-    this.shapes = const [],
-  });
+    List<Shape>? shapes,
+  }) : shapes = shapes ?? [];
 
   @HiveField(0)
   String id;

@@ -1,21 +1,38 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:recolf/models/video.dart';
+import 'package:recolf/services/video.dart';
+import 'package:recolf/video/bloc/video_bloc.dart';
 import 'package:recolf/video/view/draw_page.dart';
 import 'package:video_player/video_player.dart';
 
-class VideoPage extends StatefulWidget {
-  VideoPage({Key? key, required this.path}) : super(key: key);
-  String path;
-
+class VideoPage extends StatelessWidget {
+  const VideoPage({Key? key, required this.id}) : super(key: key);
+  final String id;
   @override
-  State<VideoPage> createState() => _VideoPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => VideoBloc(
+        videoService: RepositoryProvider.of<VideoService>(context),
+        id: id,
+      ),
+      child: VideoScaffold(),
+    );
+  }
 }
 
-class _VideoPageState extends State<VideoPage> {
+class VideoScaffold extends StatefulWidget {
+  const VideoScaffold({Key? key}) : super(key: key);
+
+  @override
+  State<VideoScaffold> createState() => _VideoScaffoldState();
+}
+
+class _VideoScaffoldState extends State<VideoScaffold> {
   late VideoPlayerController _videoPlayerController;
 
   @override
@@ -25,7 +42,8 @@ class _VideoPageState extends State<VideoPage> {
   }
 
   Future<void> _initVideoPlayer() async {
-    _videoPlayerController = VideoPlayerController.file(File(widget.path));
+    _videoPlayerController = VideoPlayerController.file(
+        File(context.read<VideoBloc>().state.video.path));
     await _videoPlayerController.initialize();
     await _videoPlayerController.setLooping(true);
     await _videoPlayerController.play();
@@ -41,7 +59,7 @@ class _VideoPageState extends State<VideoPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
-            onPressed: () async {
+            onPressed: () {
               context.go('/');
             },
           )
