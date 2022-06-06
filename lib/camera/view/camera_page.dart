@@ -14,6 +14,7 @@ class CameraPage extends StatefulWidget {
 class CameraPageState extends State<CameraPage> {
   late CameraController _controller;
   bool _isReady = false;
+  bool _isRecording = false;
 
   @override
   void initState() {
@@ -59,26 +60,38 @@ class CameraPageState extends State<CameraPage> {
               ),
             )
           : const Center(child: CircularProgressIndicator()),
-      floatingActionButton: FloatingActionButton(
-        // Provide an onPressed callback.
-        onPressed: () async {
-          try {
-            if (!_isReady) {
-              return;
-            }
+      floatingActionButton: _isRecording
+          ? FloatingActionButton(
+              // Provide an onPressed callback.
+              onPressed: () async {
+                try {
+                  final xfile = await _controller.stopVideoRecording();
 
-            await _controller.startVideoRecording();
-            await Future<void>.delayed(Duration(seconds: 3));
+                  context.go('/camera/preview?path=${xfile.path}');
+                } catch (e) {
+                  // Todo: error handling
+                }
+              },
+              child: const Icon(Icons.stop),
+            )
+          : FloatingActionButton(
+              // Provide an onPressed callback.
+              onPressed: () async {
+                try {
+                  if (!_isReady) {
+                    return;
+                  }
 
-            final xfile = await _controller.stopVideoRecording();
-
-            context.go('/camera/preview?path=${xfile.path}');
-          } catch (e) {
-            // Todo: error handling
-          }
-        },
-        child: const Icon(Icons.camera_alt),
-      ),
+                  await _controller.startVideoRecording();
+                  setState(() {
+                    _isRecording = true;
+                  });
+                } catch (e) {
+                  // Todo: error handling
+                }
+              },
+              child: const Icon(Icons.camera_alt),
+            ),
     );
   }
 }

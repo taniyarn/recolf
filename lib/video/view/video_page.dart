@@ -7,7 +7,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:recolf/models/video.dart';
 import 'package:recolf/services/video.dart';
 import 'package:recolf/video/bloc/video_bloc.dart';
-import 'package:recolf/video/view/draw_page.dart';
+import 'package:recolf/video/view/draw_view.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPage extends StatelessWidget {
@@ -46,6 +46,7 @@ class _VideoScaffoldState extends State<VideoScaffold> {
       File(context.read<VideoBloc>().state.video.path),
     );
     await _videoPlayerController.initialize();
+
     await _videoPlayerController.setLooping(true);
     await _videoPlayerController.play();
   }
@@ -76,7 +77,7 @@ class _VideoScaffoldState extends State<VideoScaffold> {
             return Stack(
               children: [
                 VideoPlayer(_videoPlayerController),
-                const DrawPage(),
+                const DrawView(),
               ],
             );
           }

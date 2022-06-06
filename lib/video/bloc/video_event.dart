@@ -18,3 +18,15 @@ class VideoUpdated extends VideoEvent {
   @override
   List<Object?> get props => [shapes];
 }
+
+class VideoModeChanged extends VideoEvent {
+  const VideoModeChanged(this.mode);
+
+  final VideoMode mode;
+}
+
+class ShapeTypeChanged extends VideoEvent {
+  const ShapeTypeChanged(this.type);
+
+  final ShapeType type;
+}

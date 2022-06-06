@@ -11,9 +11,11 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   VideoBloc({
     required VideoService videoService,
     required String id,
-  }) : super(VideoState(videoService.getVideoFromId(id))) {
+  }) : super(VideoState(video: videoService.getVideoFromId(id))) {
     _videoService = videoService;
     on<VideoUpdated>(_onVideoUpdated);
+    on<VideoModeChanged>(_onVideoModeChanged);
+    on<ShapeTypeChanged>(_onShapeTypeChanged);
   }
 
   late VideoService _videoService;
@@ -23,5 +25,19 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
     Emitter<VideoState> emit,
   ) async {
     await _videoService.updateVideo(id: event.id, shapes: event.shapes);
+  }
+
+  Future<void> _onVideoModeChanged(
+    VideoModeChanged event,
+    Emitter<VideoState> emit,
+  ) async {
+    emit(state.copyWith(mode: event.mode));
+  }
+
+  Future<void> _onShapeTypeChanged(
+    ShapeTypeChanged event,
+    Emitter<VideoState> emit,
+  ) async {
+    emit(state.copyWith(type: event.type));
   }
 }

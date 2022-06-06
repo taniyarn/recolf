@@ -9,7 +9,9 @@ Future<void> main() async {
   await Hive.initFlutter();
   final videoService = VideoService();
   await videoService.init();
-  runApp(MyApp(
-    videoService: videoService,
-  ));
+  runApp(
+    MyApp(
+      videoService: videoService,
+    ),
+  );
 }

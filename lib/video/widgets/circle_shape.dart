@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:recolf/camera/camera_const.dart';
-import 'package:recolf/video/components/corner_point.dart';
+import 'package:recolf/video/widgets/corner_point.dart';
 
 class CircleShape extends StatelessWidget {
   const CircleShape({
