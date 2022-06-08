@@ -17,6 +17,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
     on<VideoUpdated>(_onVideoUpdated);
     on<VideoModeChanged>(_onVideoModeChanged);
     on<ShapeTypeChanged>(_onShapeTypeChanged);
+    on<ShapesChanged>(_onShapesChanged);
   }
 
   late VideoService _videoService;
@@ -43,5 +44,12 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
     Emitter<VideoState> emit,
   ) async {
     emit(state.copyWith(type: event.type));
+  }
+
+  Future<void> _onShapesChanged(
+    ShapesChanged event,
+    Emitter<VideoState> emit,
+  ) async {
+    emit(state.copyWith(video: state.video.copyWith(shapes: event.shapes)));
   }
 }

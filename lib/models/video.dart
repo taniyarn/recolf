@@ -22,4 +22,17 @@ class Video extends HiveObject {
 
   @HiveField(3)
   List<Shape> shapes;
+
+  Video copyWith({
+    String? id,
+    DateTime? datetime,
+    String? path,
+    List<Shape>? shapes,
+  }) =>
+      Video(
+        id: id ?? this.id,
+        datetime: datetime ?? this.datetime,
+        path: path ?? this.path,
+        shapes: shapes ?? this.shapes,
+      );
 }

@@ -15,22 +15,8 @@ bool _isSameVector(Vector p1, Vector p2) {
   return distance < _kDistance;
 }
 
-class DrawView extends StatefulWidget {
+class DrawView extends StatelessWidget {
   const DrawView({Key? key}) : super(key: key);
-
-  @override
-  State<DrawView> createState() => _DrawViewState();
-}
-
-class _DrawViewState extends State<DrawView> {
-  late List<Shape> shapes;
-
-  @override
-  void initState() {
-    shapes = [...context.read<VideoBloc>().state.video.shapes];
-
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,27 +52,23 @@ class _DrawViewState extends State<DrawView> {
                       break;
                   }
 
-                  setState(
-                    () {
-                      shapes
-                        ..deactivate()
-                        ..add(shape);
-                    },
-                  );
+                  state.video.shapes
+                    ..deactivate()
+                    ..add(shape);
+
+                  context.read<VideoBloc>().add(
+                        ShapesChanged(state.video.shapes),
+                      );
                 },
                 onPanUpdate: (details) {
-                  final shape = shapes.firstWhere(
+                  final shape = state.video.shapes.firstWhere(
                     (e) => e.active == true,
                   );
 
                   if (shape is Line) {
-                    setState(
-                      () {
-                        shape.p2 = Vector(
-                          details.globalPosition.dx,
-                          details.globalPosition.dy,
-                        );
-                      },
+                    shape.p2 = Vector(
+                      details.globalPosition.dx,
+                      details.globalPosition.dy,
                     );
                   } else if (shape is Circle) {
                     var d = 0.0;
@@ -104,22 +86,23 @@ class _DrawViewState extends State<DrawView> {
                       return;
                     }
 
-                    setState(
-                      () {
-                        shape.bottomRight = shape.topLeft + Vector(d, d);
-                      },
-                    );
+                    shape.bottomRight = shape.topLeft + Vector(d, d);
                   }
+                  context.read<VideoBloc>().add(
+                        ShapesChanged(state.video.shapes),
+                      );
                 },
                 onPanEnd: (details) {
-                  final shape = shapes.last;
+                  final shape = state.video.shapes.last;
                   if ((shape is Line && _isSameVector(shape.p1, shape.p2)) |
                       (shape is Circle &&
                           _isSameVector(shape.topLeft, shape.bottomRight))) {
-                    setState(() {
-                      shapes.removeLast();
-                    });
+                    state.video.shapes.removeLast();
                   }
+
+                  context.read<VideoBloc>().add(
+                        ShapesChanged(state.video.shapes),
+                      );
                 },
                 child: const SizedBox(
                   height: double.infinity,
@@ -127,7 +110,7 @@ class _DrawViewState extends State<DrawView> {
                 ),
               ),
             ),
-            ...shapes.map(
+            ...state.video.shapes.map(
               (shape) {
                 if (shape is Line) {
                   return LineShape(
@@ -136,29 +119,29 @@ class _DrawViewState extends State<DrawView> {
                     disable: state.mode == VideoMode.viewMode,
                     active: shape.active,
                     updateP1: (delta) {
-                      setState(
-                        () {
-                          shape.p1 += delta.toVector();
-                        },
-                      );
+                      shape.p1 += delta.toVector();
+
+                      context.read<VideoBloc>().add(
+                            ShapesChanged(state.video.shapes),
+                          );
                     },
                     updateP2: (delta) {
-                      setState(
-                        () {
-                          shape.p2 += delta.toVector();
-                        },
-                      );
+                      shape.p2 += delta.toVector();
+
+                      context.read<VideoBloc>().add(
+                            ShapesChanged(state.video.shapes),
+                          );
                     },
                     onTap: () {
-                      setState(
-                        () {
-                          if (!shape.active) {
-                            shapes.deactivate();
-                          }
-                          shape.active = !shape.active;
-                          shapes.sortByActivate();
-                        },
-                      );
+                      if (!shape.active) {
+                        state.video.shapes.deactivate();
+                      }
+                      shape.active = !shape.active;
+                      state.video.shapes.sortByActivate();
+
+                      context.read<VideoBloc>().add(
+                            ShapesChanged(state.video.shapes),
+                          );
                     },
                   );
                 } else if (shape is Circle) {
@@ -168,56 +151,44 @@ class _DrawViewState extends State<DrawView> {
                     disable: state.mode == VideoMode.viewMode,
                     active: shape.active,
                     translation: (delta) {
-                      setState(() {
-                        shape
-                          ..topLeft += delta.toVector()
-                          ..bottomRight += delta.toVector();
-                      });
+                      shape
+                        ..topLeft += delta.toVector()
+                        ..bottomRight += delta.toVector();
+
+                      context.read<VideoBloc>().add(
+                            ShapesChanged(state.video.shapes),
+                          );
                     },
                     updateTopLeft: (newTopLeft) {
-                      setState(
-                        () {
-                          shape.topLeft = newTopLeft.toVector();
-                        },
-                      );
+                      shape.topLeft = newTopLeft.toVector();
+
+                      context.read<VideoBloc>().add(
+                            ShapesChanged(state.video.shapes),
+                          );
                     },
                     updateBottomRight: (newBottomRight) {
-                      setState(
-                        () {
-                          shape.bottomRight = newBottomRight.toVector();
-                        },
-                      );
+                      shape.bottomRight = newBottomRight.toVector();
+
+                      context.read<VideoBloc>().add(
+                            ShapesChanged(state.video.shapes),
+                          );
                     },
                     onTap: () {
-                      setState(
-                        () {
-                          if (!shape.active) {
-                            shapes.deactivate();
-                          }
-                          shape.active = !shape.active;
-                          shapes.sortByActivate();
-                        },
-                      );
+                      if (!shape.active) {
+                        state.video.shapes.deactivate();
+                      }
+                      shape.active = !shape.active;
+                      state.video.shapes.sortByActivate();
+
+                      context.read<VideoBloc>().add(
+                            ShapesChanged(state.video.shapes),
+                          );
                     },
                   );
                 }
                 return const SizedBox.shrink();
               },
             ).toList(),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: IconButton(
-                icon: const Icon(Icons.save),
-                onPressed: () {
-                  context.read<VideoBloc>().add(
-                        VideoUpdated(
-                          id: context.read<VideoBloc>().state.video.id,
-                          shapes: shapes,
-                        ),
-                      );
-                },
-              ),
-            ),
           ],
         );
       },

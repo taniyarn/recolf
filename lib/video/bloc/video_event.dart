@@ -30,3 +30,12 @@ class ShapeTypeChanged extends VideoEvent {
 
   final ShapeType type;
 }
+
+class ShapesChanged extends VideoEvent {
+  const ShapesChanged(this.shapes);
+
+  final List<Shape> shapes;
+
+  @override
+  List<Object?> get props => [shapes];
+}

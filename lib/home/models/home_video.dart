@@ -24,7 +24,7 @@ class HomeVideo extends Video {
     );
   }
 
-  HomeVideo copyWith({
+  HomeVideo copywith({
     String? id,
     DateTime? datetime,
     String? path,
