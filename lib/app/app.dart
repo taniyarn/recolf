@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) => RepositoryProvider(
         create: (context) => videoService,
         child: MaterialApp.router(
+          theme: ThemeData(useMaterial3: true),
           routeInformationParser: _router.routeInformationParser,
           routerDelegate: _router.routerDelegate,
         ),

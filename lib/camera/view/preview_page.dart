@@ -40,20 +40,23 @@ class _PreviewScaffoldState extends State<PreviewScaffold> {
     super.dispose();
   }
 
-  Future<void> _initVideoPlayer() async {
+  @override
+  void initState() {
+    super.initState();
     _videoPlayerController = VideoPlayerController.file(File(widget.path));
-    await _videoPlayerController.initialize();
-    await _videoPlayerController.setLooping(true);
-    await _videoPlayerController.play();
+
+    _videoPlayerController.addListener(() {
+      setState(() {});
+    });
+    _videoPlayerController.setLooping(true);
+    _videoPlayerController.initialize().then((_) => setState(() {}));
+    _videoPlayerController.play();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Preview'),
-        elevation: 0,
-        backgroundColor: Colors.black26,
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
@@ -69,16 +72,78 @@ class _PreviewScaffoldState extends State<PreviewScaffold> {
         ],
       ),
       extendBodyBehindAppBar: true,
-      body: FutureBuilder(
-        future: _initVideoPlayer(),
-        builder: (context, state) {
-          if (state.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else {
-            return VideoPlayer(_videoPlayerController);
-          }
-        },
+      body: Stack(
+        children: [
+          VideoPlayer(_videoPlayerController),
+          _ControlsOverlay(controller: _videoPlayerController),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SizedBox(
+              height: 56,
+              child: Slider(
+                value: _videoPlayerController.value.position.inMilliseconds /
+                    _videoPlayerController.value.duration.inMilliseconds,
+                onChanged: (progress) {
+                  _videoPlayerController
+                      .seekTo(_videoPlayerController.value.duration * progress);
+                },
+                onChangeStart: (_) {
+                  if (!_videoPlayerController.value.isInitialized) {
+                    return;
+                  }
+                  if (_videoPlayerController.value.isPlaying) {
+                    _videoPlayerController.pause();
+                  }
+                },
+                onChangeEnd: (_) {
+                  if (_videoPlayerController.value.isPlaying &&
+                      _videoPlayerController.value.position !=
+                          _videoPlayerController.value.duration) {
+                    _videoPlayerController.play();
+                  }
+                },
+              ),
+            ),
+          ),
+        ],
       ),
+    );
+  }
+}
+
+class _ControlsOverlay extends StatelessWidget {
+  const _ControlsOverlay({Key? key, required this.controller})
+      : super(key: key);
+
+  final VideoPlayerController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 50),
+          reverseDuration: const Duration(milliseconds: 200),
+          child: controller.value.isPlaying
+              ? const SizedBox.shrink()
+              : Container(
+                  color: Colors.black26,
+                  child: const Center(
+                    child: Icon(
+                      Icons.play_arrow,
+                      color: Colors.white,
+                      size: 100.0,
+                      semanticLabel: 'Play',
+                    ),
+                  ),
+                ),
+        ),
+        GestureDetector(
+          onTap: () {
+            controller.value.isPlaying ? controller.pause() : controller.play();
+          },
+        ),
+      ],
     );
   }
 }
