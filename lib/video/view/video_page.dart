@@ -5,8 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:recolf/models/video.dart';
+import 'package:recolf/my_flutter_app_icons.dart';
 import 'package:recolf/services/video.dart';
 import 'package:recolf/video/bloc/video_bloc.dart';
+import 'package:recolf/video/util.dart';
 import 'package:recolf/video/view/draw_view.dart';
 import 'package:video_player/video_player.dart';
 
@@ -55,10 +57,36 @@ class _VideoScaffoldState extends State<VideoScaffold> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Preview'),
-        elevation: 0,
-        backgroundColor: Colors.black26,
         actions: [
+          BlocBuilder<VideoBloc, VideoState>(
+            builder: (context, state) {
+              if (state.mode == VideoMode.drawMode) {
+                return IconButton(
+                  icon: Icon(state.type.getIcon()),
+                  onPressed: () {
+                    context.read<VideoBloc>().add(
+                          ShapeTypeChanged(state.type.next()),
+                        );
+                  },
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+          IconButton(
+            icon: BlocBuilder<VideoBloc, VideoState>(
+              builder: (context, state) {
+                return Icon(state.mode.getIcon());
+              },
+            ),
+            onPressed: () {
+              context.read<VideoBloc>().add(
+                    VideoModeChanged(
+                      context.read<VideoBloc>().state.mode.next(),
+                    ),
+                  );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.check),
             onPressed: () {

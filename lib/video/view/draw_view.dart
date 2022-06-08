@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:recolf/models/shape.dart';
 import 'package:recolf/video/bloc/video_bloc.dart';
+import 'package:recolf/video/util.dart';
 import 'package:recolf/video/widgets/circle_shape.dart';
 import 'package:recolf/video/widgets/line_shape.dart';
-import 'package:recolf/video/util.dart';
 
 const _kDistance = 5;
 
@@ -38,87 +38,93 @@ class _DrawViewState extends State<DrawView> {
       builder: (context, state) {
         return Stack(
           children: [
-            GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onPanStart: (details) {
-                final tapVector = Vector(
-                  details.globalPosition.dx,
-                  details.globalPosition.dy,
-                );
-                Shape shape;
+            IgnorePointer(
+              ignoring: state.mode == VideoMode.viewMode,
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onPanStart: (details) {
+                  final tapVector = Vector(
+                    details.globalPosition.dx,
+                    details.globalPosition.dy,
+                  );
+                  Shape shape;
 
-                switch (state.type) {
-                  case ShapeType.line:
-                    shape = Line(
-                      p1: tapVector,
-                      p2: tapVector,
-                      active: true,
-                    );
-                    break;
-                  case ShapeType.circle:
-                    shape = Circle(
-                      topLeft: tapVector,
-                      bottomRight: tapVector,
-                      active: true,
-                    );
-                    break;
-                }
-
-                setState(
-                  () {
-                    shapes
-                      ..deactivate()
-                      ..add(shape);
-                  },
-                );
-              },
-              onPanUpdate: (details) {
-                final shape = shapes.firstWhere(
-                  (e) => e.active == true,
-                );
-
-                if (shape is Line) {
-                  setState(
-                    () {
-                      shape.p2 = Vector(
-                        details.globalPosition.dx,
-                        details.globalPosition.dy,
+                  switch (state.type) {
+                    case ShapeType.line:
+                      shape = Line(
+                        p1: tapVector,
+                        p2: tapVector,
+                        active: true,
                       );
-                    },
-                  );
-                } else if (shape is Circle) {
-                  var d = 0.0;
-                  if ((details.globalPosition - shape.topLeft.toOffset()).dx >
-                      (details.globalPosition - shape.topLeft.toOffset()).dy) {
-                    d = (details.globalPosition - shape.topLeft.toOffset()).dx;
-                  } else {
-                    d = (details.globalPosition - shape.topLeft.toOffset()).dy;
-                  }
-
-                  if (d < 0) {
-                    return;
+                      break;
+                    case ShapeType.circle:
+                      shape = Circle(
+                        topLeft: tapVector,
+                        bottomRight: tapVector,
+                        active: true,
+                      );
+                      break;
                   }
 
                   setState(
                     () {
-                      shape.bottomRight = shape.topLeft + Vector(d, d);
+                      shapes
+                        ..deactivate()
+                        ..add(shape);
                     },
                   );
-                }
-              },
-              onPanEnd: (details) {
-                final shape = shapes.last;
-                if ((shape is Line && _isSameVector(shape.p1, shape.p2)) |
-                    (shape is Circle &&
-                        _isSameVector(shape.topLeft, shape.bottomRight))) {
-                  setState(() {
-                    shapes.removeLast();
-                  });
-                }
-              },
-              child: const SizedBox(
-                height: double.infinity,
-                width: double.infinity,
+                },
+                onPanUpdate: (details) {
+                  final shape = shapes.firstWhere(
+                    (e) => e.active == true,
+                  );
+
+                  if (shape is Line) {
+                    setState(
+                      () {
+                        shape.p2 = Vector(
+                          details.globalPosition.dx,
+                          details.globalPosition.dy,
+                        );
+                      },
+                    );
+                  } else if (shape is Circle) {
+                    var d = 0.0;
+                    if ((details.globalPosition - shape.topLeft.toOffset()).dx >
+                        (details.globalPosition - shape.topLeft.toOffset())
+                            .dy) {
+                      d = (details.globalPosition - shape.topLeft.toOffset())
+                          .dx;
+                    } else {
+                      d = (details.globalPosition - shape.topLeft.toOffset())
+                          .dy;
+                    }
+
+                    if (d < 0) {
+                      return;
+                    }
+
+                    setState(
+                      () {
+                        shape.bottomRight = shape.topLeft + Vector(d, d);
+                      },
+                    );
+                  }
+                },
+                onPanEnd: (details) {
+                  final shape = shapes.last;
+                  if ((shape is Line && _isSameVector(shape.p1, shape.p2)) |
+                      (shape is Circle &&
+                          _isSameVector(shape.topLeft, shape.bottomRight))) {
+                    setState(() {
+                      shapes.removeLast();
+                    });
+                  }
+                },
+                child: const SizedBox(
+                  height: double.infinity,
+                  width: double.infinity,
+                ),
               ),
             ),
             ...shapes.map(
@@ -127,6 +133,7 @@ class _DrawViewState extends State<DrawView> {
                   return LineShape(
                     p1: shape.p1.toOffset(),
                     p2: shape.p2.toOffset(),
+                    disable: state.mode == VideoMode.viewMode,
                     active: shape.active,
                     updateP1: (delta) {
                       setState(
@@ -158,6 +165,7 @@ class _DrawViewState extends State<DrawView> {
                   return CircleShape(
                     topLeft: shape.topLeft.toOffset(),
                     bottomRight: shape.bottomRight.toOffset(),
+                    disable: state.mode == VideoMode.viewMode,
                     active: shape.active,
                     translation: (delta) {
                       setState(() {
@@ -210,51 +218,8 @@ class _DrawViewState extends State<DrawView> {
                 },
               ),
             ),
-            if (state.type == ShapeType.line)
-              Align(
-                alignment: Alignment.bottomRight,
-                child: IconButton(
-                  icon: const Icon(Icons.toggle_on),
-                  onPressed: () {
-                    context.read<VideoBloc>().add(
-                          ShapeTypeChanged(ShapeType.circle),
-                        );
-                  },
-                ),
-              )
-            else
-              Align(
-                alignment: Alignment.bottomRight,
-                child: IconButton(
-                  icon: const Icon(Icons.toggle_on),
-                  onPressed: () {
-                    context.read<VideoBloc>().add(
-                          ShapeTypeChanged(ShapeType.line),
-                        );
-                  },
-                ),
-              ),
           ],
         );
-      },
-    );
-  }
-}
-
-extension Ex on List<Shape> {
-  void deactivate() {
-    forEach((e) => e.active = false);
-  }
-
-  void sortByActivate() {
-    sort(
-      (a, b) {
-        if (a.active) {
-          return 1;
-        } else if (b.active) {
-          return -1;
-        }
-        return 0;
       },
     );
   }

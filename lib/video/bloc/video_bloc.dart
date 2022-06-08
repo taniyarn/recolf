@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:recolf/models/shape.dart';
 import 'package:recolf/models/video.dart';
 import 'package:recolf/services/video.dart';
@@ -16,6 +17,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
     on<VideoUpdated>(_onVideoUpdated);
     on<VideoModeChanged>(_onVideoModeChanged);
     on<ShapeTypeChanged>(_onShapeTypeChanged);
+    on<ShapesChanged>(_onShapesChanged);
   }
 
   late VideoService _videoService;
@@ -24,7 +26,10 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
     VideoUpdated event,
     Emitter<VideoState> emit,
   ) async {
-    await _videoService.updateVideo(id: event.id, shapes: event.shapes);
+    await _videoService.updateVideo(
+      id: state.video.id,
+      shapes: state.video.shapes,
+    );
   }
 
   Future<void> _onVideoModeChanged(
@@ -39,5 +44,12 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
     Emitter<VideoState> emit,
   ) async {
     emit(state.copyWith(type: event.type));
+  }
+
+  Future<void> _onShapesChanged(
+    ShapesChanged event,
+    Emitter<VideoState> emit,
+  ) async {
+    emit(state.copyWith(video: state.video.copyWith(shapes: event.shapes)));
   }
 }

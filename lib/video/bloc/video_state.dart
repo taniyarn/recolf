@@ -1,18 +1,8 @@
 part of 'video_bloc.dart';
 
 enum VideoMode { viewMode, drawMode }
-enum ShapeType { line, circle }
 
-extension ShapeTypeEx on ShapeType {
-  ShapeType next() {
-    switch (this) {
-      case ShapeType.line:
-        return ShapeType.circle;
-      case ShapeType.circle:
-        return ShapeType.line;
-    }
-  }
-}
+enum ShapeType { line, circle }
 
 class VideoState extends Equatable {
   const VideoState({

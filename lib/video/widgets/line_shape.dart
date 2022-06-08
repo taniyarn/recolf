@@ -8,6 +8,7 @@ class LineShape extends StatelessWidget {
     required this.p1,
     required this.p2,
     required this.active,
+    required this.disable,
     required this.updateP1,
     required this.updateP2,
     this.onTap,
@@ -15,6 +16,7 @@ class LineShape extends StatelessWidget {
   final Offset p1;
   final Offset p2;
   final bool active;
+  final bool disable;
   final Function(Offset) updateP1;
   final Function(Offset) updateP2;
   final void Function()? onTap;
@@ -22,17 +24,20 @@ class LineShape extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final children = <Widget>[
-      GestureDetector(
-        onPanUpdate: (details) {
-          if (!active) return;
+      IgnorePointer(
+        ignoring: disable,
+        child: GestureDetector(
+          onPanUpdate: (details) {
+            if (!active) return;
 
-          updateP1(details.delta);
-          updateP2(details.delta);
-        },
-        onTap: active ? null : onTap,
-        child: CustomPaint(
-          painter: ExampleLine(p1: p1, p2: p2, active: active),
-          child: Container(),
+            updateP1(details.delta);
+            updateP2(details.delta);
+          },
+          onTap: active ? null : onTap,
+          child: CustomPaint(
+            painter: ExampleLine(p1: p1, p2: p2, active: active),
+            child: Container(),
+          ),
         ),
       ),
     ];
@@ -42,23 +47,29 @@ class LineShape extends StatelessWidget {
           Positioned(
             left: p1.dx - kTapRadius / 2,
             top: p1.dy - kTapRadius / 2,
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onPanUpdate: (details) {
-                updateP1(details.delta);
-              },
-              child: const CornerPoint(),
+            child: IgnorePointer(
+              ignoring: disable,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onPanUpdate: (details) {
+                  updateP1(details.delta);
+                },
+                child: const CornerPoint(),
+              ),
             ),
           ),
           Positioned(
             left: p2.dx - kTapRadius / 2,
             top: p2.dy - kTapRadius / 2,
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onPanUpdate: (details) {
-                updateP2(details.delta);
-              },
-              child: const CornerPoint(),
+            child: IgnorePointer(
+              ignoring: disable,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onPanUpdate: (details) {
+                  updateP2(details.delta);
+                },
+                child: const CornerPoint(),
+              ),
             ),
           ),
         ],
