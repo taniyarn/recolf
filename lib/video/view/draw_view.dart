@@ -20,7 +20,12 @@ class DrawView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<VideoBloc, VideoState>(
+    return BlocConsumer<VideoBloc, VideoState>(
+      listener: (context, state) {
+        if (state.mode == VideoMode.viewMode) {
+          state.video.shapes.deactivate();
+        }
+      },
       builder: (context, state) {
         return Stack(
           children: [

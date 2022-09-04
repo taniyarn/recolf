@@ -103,35 +103,41 @@ class _VideoScaffoldState extends State<VideoScaffold> {
           VideoPlayer(_videoPlayerController),
           _ControlsOverlay(controller: _videoPlayerController),
           const DrawView(),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: SizedBox(
-              height: 56,
-              child: Slider(
-                value: _videoPlayerController.value.position.inMilliseconds /
-                    _videoPlayerController.value.duration.inMilliseconds,
-                onChanged: (progress) {
-                  _videoPlayerController
-                      .seekTo(_videoPlayerController.value.duration * progress);
-                },
-                onChangeStart: (_) {
-                  if (!_videoPlayerController.value.isInitialized) {
-                    return;
-                  }
-                  if (_videoPlayerController.value.isPlaying) {
-                    _videoPlayerController.pause();
-                  }
-                },
-                onChangeEnd: (_) {
-                  if (_videoPlayerController.value.isPlaying &&
-                      _videoPlayerController.value.position !=
-                          _videoPlayerController.value.duration) {
-                    _videoPlayerController.play();
-                  }
-                },
+          if (_videoPlayerController.value.duration.inMilliseconds == 0)
+            const SizedBox.shrink()
+          else
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(
+                height: 56,
+                child: Slider(
+                  value: _videoPlayerController.value.position.inMilliseconds /
+                      _videoPlayerController.value.duration.inMilliseconds,
+                  onChanged: (progress) {
+                    print('onChanged');
+                    _videoPlayerController.seekTo(
+                        _videoPlayerController.value.duration * progress);
+                  },
+                  onChangeStart: (_) {
+                    print('onChangedStart');
+                    if (!_videoPlayerController.value.isInitialized) {
+                      return;
+                    }
+                    if (_videoPlayerController.value.isPlaying) {
+                      _videoPlayerController.pause();
+                    }
+                  },
+                  onChangeEnd: (_) {
+                    print('onChangedEnd');
+                    if (_videoPlayerController.value.isPlaying &&
+                        _videoPlayerController.value.position !=
+                            _videoPlayerController.value.duration) {
+                      _videoPlayerController.play();
+                    }
+                  },
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

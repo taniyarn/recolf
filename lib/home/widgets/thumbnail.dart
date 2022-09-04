@@ -23,10 +23,15 @@ class Thumbnail extends StatelessWidget {
       fit: BoxFit.cover,
     );
     return GestureDetector(
-      onTap: () {
-        context.go('/video?id=$id');
-      },
-      child: image,
-    );
+        onTap: () {
+          context.go('/video?id=$id');
+        },
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(32), // Image border
+          child: SizedBox.fromSize(
+            size: Size.fromRadius(48), // Image radius
+            child: image,
+          ),
+        ));
   }
 }
