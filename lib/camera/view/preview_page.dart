@@ -3,9 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:recolf/camera/bloc/camera_bloc.dart';
-import 'package:recolf/models/video.dart';
 import 'package:recolf/services/video.dart';
 import 'package:video_player/video_player.dart';
 
@@ -45,10 +43,11 @@ class _PreviewScaffoldState extends State<PreviewScaffold> {
     super.initState();
     _videoPlayerController = VideoPlayerController.file(File(widget.path));
 
-    _videoPlayerController.addListener(() {
-      setState(() {});
-    });
-    _videoPlayerController.setLooping(true);
+    _videoPlayerController
+      ..addListener(() {
+        setState(() {});
+      })
+      ..setLooping(true);
     _videoPlayerController.initialize().then((_) => setState(() {}));
     _videoPlayerController.play();
   }
@@ -76,35 +75,39 @@ class _PreviewScaffoldState extends State<PreviewScaffold> {
         children: [
           VideoPlayer(_videoPlayerController),
           _ControlsOverlay(controller: _videoPlayerController),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: SizedBox(
-              height: 56,
-              child: Slider(
-                value: _videoPlayerController.value.position.inMilliseconds /
-                    _videoPlayerController.value.duration.inMilliseconds,
-                onChanged: (progress) {
-                  _videoPlayerController
-                      .seekTo(_videoPlayerController.value.duration * progress);
-                },
-                onChangeStart: (_) {
-                  if (!_videoPlayerController.value.isInitialized) {
-                    return;
-                  }
-                  if (_videoPlayerController.value.isPlaying) {
-                    _videoPlayerController.pause();
-                  }
-                },
-                onChangeEnd: (_) {
-                  if (_videoPlayerController.value.isPlaying &&
-                      _videoPlayerController.value.position !=
-                          _videoPlayerController.value.duration) {
-                    _videoPlayerController.play();
-                  }
-                },
+          if (_videoPlayerController.value.duration.inMilliseconds == 0)
+            const SizedBox.shrink()
+          else
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(
+                height: 56,
+                child: Slider(
+                  value: _videoPlayerController.value.position.inMilliseconds /
+                      _videoPlayerController.value.duration.inMilliseconds,
+                  onChanged: (progress) {
+                    _videoPlayerController.seekTo(
+                      _videoPlayerController.value.duration * progress,
+                    );
+                  },
+                  onChangeStart: (_) {
+                    if (!_videoPlayerController.value.isInitialized) {
+                      return;
+                    }
+                    if (_videoPlayerController.value.isPlaying) {
+                      _videoPlayerController.pause();
+                    }
+                  },
+                  onChangeEnd: (_) {
+                    if (_videoPlayerController.value.isPlaying &&
+                        _videoPlayerController.value.position !=
+                            _videoPlayerController.value.duration) {
+                      _videoPlayerController.play();
+                    }
+                  },
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

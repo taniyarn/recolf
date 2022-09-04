@@ -35,24 +35,21 @@ class _VideoScaffoldState extends State<VideoScaffold> {
   late VideoPlayerController _videoPlayerController;
 
   @override
-  void initState() {
-    _videoPlayerController = VideoPlayerController.file(
-      File(context.read<VideoBloc>().state.video.path),
-    );
-    _videoPlayerController
-      ..addListener(() {
-        setState(() {});
-      })
-      ..setLooping(true)
-      ..initialize()
-      ..play();
-    super.initState();
-  }
-
-  @override
   void dispose() {
     _videoPlayerController.dispose();
     super.dispose();
+  }
+
+  Future<void> _initVideoPlayer() async {
+    _videoPlayerController = VideoPlayerController.file(
+      File(context.read<VideoBloc>().state.video.path),
+    );
+    // _videoPlayerController.addListener(() {
+    //   setState(() {});
+    // });
+    await _videoPlayerController.setLooping(true);
+    await _videoPlayerController.initialize();
+    await _videoPlayerController.play();
   }
 
   @override
@@ -98,41 +95,51 @@ class _VideoScaffoldState extends State<VideoScaffold> {
         ],
       ),
       extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          VideoPlayer(_videoPlayerController),
-          _ControlsOverlay(controller: _videoPlayerController),
-          const DrawView(),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: SizedBox(
-              height: 56,
-              child: Slider(
-                value: _videoPlayerController.value.position.inMilliseconds /
-                    _videoPlayerController.value.duration.inMilliseconds,
-                onChanged: (progress) {
-                  _videoPlayerController
-                      .seekTo(_videoPlayerController.value.duration * progress);
-                },
-                onChangeStart: (_) {
-                  if (!_videoPlayerController.value.isInitialized) {
-                    return;
-                  }
-                  if (_videoPlayerController.value.isPlaying) {
-                    _videoPlayerController.pause();
-                  }
-                },
-                onChangeEnd: (_) {
-                  if (_videoPlayerController.value.isPlaying &&
-                      _videoPlayerController.value.position !=
-                          _videoPlayerController.value.duration) {
-                    _videoPlayerController.play();
-                  }
-                },
-              ),
-            ),
-          ),
-        ],
+      body: FutureBuilder(
+        future: _initVideoPlayer(),
+        builder: (context, state) {
+          if (state.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else {
+            return Stack(
+              children: [
+                VideoPlayer(_videoPlayerController),
+                _ControlsOverlay(controller: _videoPlayerController),
+                const DrawView(),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SizedBox(
+                    height: 56,
+                    child: Slider(
+                      value: _videoPlayerController
+                              .value.position.inMilliseconds /
+                          _videoPlayerController.value.duration.inMilliseconds,
+                      onChanged: (progress) {
+                        _videoPlayerController.seekTo(
+                            _videoPlayerController.value.duration * progress);
+                      },
+                      onChangeStart: (_) {
+                        if (!_videoPlayerController.value.isInitialized) {
+                          return;
+                        }
+                        if (_videoPlayerController.value.isPlaying) {
+                          _videoPlayerController.pause();
+                        }
+                      },
+                      onChangeEnd: (_) {
+                        if (_videoPlayerController.value.isPlaying &&
+                            _videoPlayerController.value.position !=
+                                _videoPlayerController.value.duration) {
+                          _videoPlayerController.play();
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+        },
       ),
     );
   }

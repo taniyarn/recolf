@@ -75,7 +75,7 @@ class CameraPageState extends State<CameraPage> {
                                 context
                                     .go('/camera/preview?path=${xfile.path}');
                               } catch (e) {
-                                // Todo: error handling
+                                print(e);
                               }
                             },
                             isStarted: true,
@@ -92,7 +92,7 @@ class CameraPageState extends State<CameraPage> {
                                   _isRecording = true;
                                 });
                               } catch (e) {
-                                // Todo: error handling
+                                print(e);
                               }
                             },
                           ),
