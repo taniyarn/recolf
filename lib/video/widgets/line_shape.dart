@@ -94,7 +94,7 @@ class ExampleLine extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = active ? primary : secondary
+      ..color = active ? Colors.red[300]! : const Color.fromARGB(255, 255, 0, 0)
       ..strokeWidth = kStrokeWidth;
 
     canvas.drawLine(p1, p2, paint);

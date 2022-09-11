@@ -13,8 +13,8 @@ class CornerPoint extends StatelessWidget {
       child: Container(
         width: kRadius,
         height: kRadius,
-        decoration: const BoxDecoration(
-          color: primary,
+        decoration: BoxDecoration(
+          color: Colors.red[300],
           shape: BoxShape.circle,
         ),
       ),

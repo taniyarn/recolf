@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:video_trimmer/video_trimmer.dart';
 
@@ -16,7 +17,7 @@ class TrimmerPage extends StatefulWidget {
   final String? id;
 
   @override
-  _TrimmerPageState createState() => _TrimmerPageState();
+  State<StatefulWidget> createState() => _TrimmerPageState();
 }
 
 class _TrimmerPageState extends State<TrimmerPage> {
@@ -24,7 +25,6 @@ class _TrimmerPageState extends State<TrimmerPage> {
 
   double _startValue = 0;
   double _endValue = 0;
-  bool _isPlaying = false;
 
   @override
   void initState() {
@@ -45,40 +45,40 @@ class _TrimmerPageState extends State<TrimmerPage> {
       endValue: _endValue,
       videoFolderName: videoFolderName,
       onSave: (outputPath) async {
-        debugPrint('OUTPUT PATH: $outputPath');
         Directory(widget.path).deleteSync(recursive: true);
         await File(outputPath!).rename(widget.path);
-        context.go('${widget.caller}?path=${widget.path}&id=${widget.id}');
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
+    );
     return Scaffold(
+      backgroundColor: Colors.grey[900],
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Expanded(
             child: Stack(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(32),
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
                   child: VideoViewer(
-                    padding: const EdgeInsets.all(32),
-                    borderColor: Colors.blue,
                     trimmer: _trimmer,
                   ),
                 ),
                 GestureDetector(
                   onTap: () async {
-                    final playbackState = await _trimmer.videPlaybackControl(
+                    await _trimmer.videPlaybackControl(
                       startValue: _startValue,
                       endValue: _endValue,
                     );
-                    setState(() {
-                      _isPlaying = playbackState;
-                    });
                   },
                 ),
               ],
@@ -86,7 +86,8 @@ class _TrimmerPageState extends State<TrimmerPage> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 32),
-            child: Center(
+            child: Align(
+              alignment: Alignment.topCenter,
               child: TrimEditor(
                 fit: BoxFit.cover,
                 trimmer: _trimmer,
@@ -100,27 +101,44 @@ class _TrimmerPageState extends State<TrimmerPage> {
                 onChangeEnd: (value) {
                   _endValue = value;
                 },
-                onChangePlaybackState: (value) {
-                  setState(() {
-                    _isPlaying = value;
-                  });
-                },
+                onChangePlaybackState: (_) {},
               ),
             ),
           ),
-          Row(
-            children: [
-              IconButton(
-                onPressed: () =>
-                    context.go('${widget.caller}?path=${widget.path}'),
-                icon: const Icon(Icons.close),
-              ),
-              const Expanded(child: SizedBox.shrink()),
-              IconButton(
-                onPressed: () => _saveVideo(context),
-                icon: const Icon(Icons.done),
-              ),
-            ],
+          SizedBox(
+            height: 64,
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => context.go(
+                    '${widget.caller}?path=${widget.path}&id=${widget.id}',
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Icon(
+                      Icons.close,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const Expanded(child: SizedBox.shrink()),
+                GestureDetector(
+                  onTap: () {
+                    _saveVideo(context);
+                    context.go(
+                      '${widget.caller}?path=${widget.path}&id=${widget.id}',
+                    );
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Icon(
+                      Icons.done,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

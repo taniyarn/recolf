@@ -54,6 +54,7 @@ class CameraPageState extends State<CameraPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -61,6 +62,7 @@ class CameraPageState extends State<CameraPage> {
           },
         ),
       ),
+      extendBodyBehindAppBar: true,
       body: _isReady
           ? Stack(
               children: [
@@ -116,7 +118,7 @@ class CameraPageState extends State<CameraPage> {
                 )
               ],
             )
-          : const Center(child: CircularProgressIndicator()),
+          : const SizedBox.shrink(),
     );
   }
 }

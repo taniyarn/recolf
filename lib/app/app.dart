@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recolf/camera/view/camera_page.dart';
@@ -16,7 +17,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) => RepositoryProvider(
         create: (context) => videoService,
         child: MaterialApp.router(
-          theme: ThemeData(useMaterial3: true),
+          theme: ThemeData(
+            useMaterial3: true,
+            appBarTheme: const AppBarTheme(
+              systemOverlayStyle: SystemUiOverlayStyle.dark,
+            ),
+          ),
           routeInformationParser: _router.routeInformationParser,
           routerDelegate: _router.routerDelegate,
         ),

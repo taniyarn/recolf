@@ -40,25 +40,29 @@ class _PreviewScaffoldState extends State<PreviewScaffold> {
     _videoPlayerController = VideoPlayerController.file(File(widget.path));
 
     _videoPlayerController
-      ..addListener(() {
-        print(_videoPlayerController.value.position);
-        setState(() {});
-      })
+      ..addListener(listener)
       ..setLooping(true)
       ..initialize().then((_) => setState(() {}))
       ..play();
     super.initState();
   }
 
+  void listener() {
+    setState(() {});
+  }
+
   @override
   void dispose() {
-    _videoPlayerController.dispose();
+    _videoPlayerController
+      ..removeListener(listener)
+      ..dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.transparent,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
@@ -98,6 +102,8 @@ class _PreviewScaffoldState extends State<PreviewScaffold> {
                 child: SizedBox(
                   height: 56,
                   child: Slider(
+                    activeColor: const Color.fromARGB(255, 255, 0, 0),
+                    inactiveColor: Colors.grey[600],
                     value: _videoPlayerController
                             .value.position.inMilliseconds /
                         _videoPlayerController.value.duration.inMilliseconds,

@@ -18,6 +18,7 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
     on<ShapeTypeChanged>(_onShapeTypeChanged);
     on<ShapesChanged>(_onShapesChanged);
     on<ShapesDeactivated>(_onShapesDeactivated);
+    on<ShapeRemoved>(_onShapeRemoved);
   }
 
   late VideoService _videoService;
@@ -28,7 +29,10 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   ) async {
     await _videoService.updateVideo(
       id: state.video.id,
-      shapes: state.video.shapes,
+      shapes: state.video.shapes.map((shape) {
+        shape.active = false;
+        return shape;
+      }).toList(),
     );
   }
 
@@ -64,6 +68,20 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
             shape.active = false;
             return shape;
           }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onShapeRemoved(
+    ShapeRemoved event,
+    Emitter<VideoState> emit,
+  ) async {
+    state.video.shapes.remove(event.shape);
+    emit(
+      state.copyWith(
+        video: state.video.copyWith(
+          shapes: state.video.shapes,
         ),
       ),
     );

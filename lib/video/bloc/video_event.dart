@@ -8,15 +8,7 @@ abstract class VideoEvent extends Equatable {
 }
 
 class VideoUpdated extends VideoEvent {
-  const VideoUpdated({
-    required this.id,
-    required this.shapes,
-  });
-  final String id;
-  final List<Shape> shapes;
-
-  @override
-  List<Object?> get props => [shapes];
+  const VideoUpdated();
 }
 
 class VideoModeChanged extends VideoEvent {
@@ -42,4 +34,10 @@ class ShapesChanged extends VideoEvent {
 
 class ShapesDeactivated extends VideoEvent {
   const ShapesDeactivated();
+}
+
+class ShapeRemoved extends VideoEvent {
+  const ShapeRemoved(this.shape);
+
+  final Shape shape;
 }

@@ -41,35 +41,66 @@ class _VideoScaffoldState extends State<VideoScaffold> {
     );
 
     _videoPlayerController
-      ..addListener(() {
-        setState(() {});
-      })
+      ..addListener(listener)
       ..setLooping(true)
       ..initialize().then((_) => setState(() {}))
       ..play();
     super.initState();
   }
 
+  void listener() {
+    setState(() {});
+  }
+
   @override
   void dispose() {
-    _videoPlayerController.dispose();
+    _videoPlayerController
+      ..removeListener(listener)
+      ..dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              context.read<VideoBloc>().add(
+                    const VideoUpdated(),
+                  );
+              context.go('/');
+            },
+          ),
           actions: [
             BlocBuilder<VideoBloc, VideoState>(
               builder: (context, state) {
                 if (state.mode == VideoMode.drawMode) {
-                  return IconButton(
-                    icon: Icon(state.type.getIcon()),
-                    onPressed: () {
-                      context.read<VideoBloc>().add(
-                            ShapeTypeChanged(state.type.next()),
-                          );
-                    },
+                  final activatedShape =
+                      state.video.shapes.where((shape) => shape.active);
+                  return Row(
+                    children: [
+                      if (activatedShape.isEmpty)
+                        const SizedBox.shrink()
+                      else
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline),
+                          onPressed: () {
+                            context.read<VideoBloc>().add(
+                                  ShapeRemoved(activatedShape.first),
+                                );
+                          },
+                        ),
+                      IconButton(
+                        icon: Icon(state.type.getIcon()),
+                        onPressed: () {
+                          context.read<VideoBloc>().add(
+                                ShapeTypeChanged(state.type.next()),
+                              );
+                        },
+                      ),
+                    ],
                   );
                 }
                 return const SizedBox.shrink();
@@ -103,7 +134,9 @@ class _VideoScaffoldState extends State<VideoScaffold> {
             VideoPlayer(_videoPlayerController),
             _ControlsOverlay(controller: _videoPlayerController),
             const DrawView(),
-            if (_videoPlayerController.value.duration.inMilliseconds == 0)
+            if (_videoPlayerController.value.duration.inMilliseconds == 0 ||
+                _videoPlayerController.value.duration.inMilliseconds <
+                    _videoPlayerController.value.position.inMilliseconds)
               const SizedBox.shrink()
             else
               Align(
@@ -111,6 +144,8 @@ class _VideoScaffoldState extends State<VideoScaffold> {
                 child: SizedBox(
                   height: 56,
                   child: Slider(
+                    activeColor: const Color.fromARGB(255, 255, 0, 0),
+                    inactiveColor: Colors.grey[600],
                     value: _videoPlayerController
                             .value.position.inMilliseconds /
                         _videoPlayerController.value.duration.inMilliseconds,

@@ -15,12 +15,24 @@ class HomePage extends StatelessWidget {
           HomeBloc(RepositoryProvider.of<VideoService>(context))
             ..add(VideosFetched()),
       child: Scaffold(
-        body: const HomeGridView(),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => context.go('/camera'),
-          child: const Icon(Icons.add),
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          leading: IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              context.go('/');
+            },
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.add_a_photo),
+              onPressed: () {
+                context.go('/camera');
+              },
+            )
+          ],
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        body: const HomeGridView(),
       ),
     );
   }

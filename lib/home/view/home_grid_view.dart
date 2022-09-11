@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:recolf/home/bloc/home_bloc.dart';
-import 'package:recolf/home/models/home_video.dart';
 import 'package:recolf/home/widgets/thumbnail.dart';
+import 'package:recolf/models/video.dart';
 
 class HomeGridView extends StatelessWidget {
   const HomeGridView({
@@ -16,10 +16,10 @@ class HomeGridView extends StatelessWidget {
       builder: (context, state) {
         switch (state.status) {
           case HomeStatus.initial:
-            return const Center(child: CircularProgressIndicator());
+            return const SizedBox.shrink();
           case HomeStatus.loaded:
             final outputFormat = DateFormat('M/d');
-            final videoMap = <String, List<HomeVideo>>{};
+            final videoMap = <String, List<Video>>{};
             for (final video in state.videos) {
               final date = outputFormat.format(video.datetime);
               if (videoMap.containsKey(date)) {
@@ -32,6 +32,7 @@ class HomeGridView extends StatelessWidget {
             final dates = videoMap.keys.toList();
 
             return ListView.builder(
+              physics: const BouncingScrollPhysics(),
               itemCount: dates.length,
               itemBuilder: (context, index) {
                 final videos = videoMap[dates[index]];
@@ -48,6 +49,7 @@ class HomeGridView extends StatelessWidget {
                     SizedBox(
                       height: 160,
                       child: ListView.builder(
+                        physics: const BouncingScrollPhysics(),
                         scrollDirection: Axis.horizontal,
                         itemCount: videos!.length,
                         padding: const EdgeInsets.all(8),
@@ -57,8 +59,7 @@ class HomeGridView extends StatelessWidget {
                             width: 144,
                             padding: const EdgeInsets.all(8),
                             child: Thumbnail(
-                              thumbnailPath: videos[listIndex].thumbnailPath!,
-                              id: videos[listIndex].id,
+                              video: videos[listIndex],
                             ),
                           );
                         },
