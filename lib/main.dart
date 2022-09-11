@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:recolf/app/app.dart';
 import 'package:recolf/services/video.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -22,4 +23,5 @@ Future<void> main() async {
       videoService: videoService,
     ),
   );
+  FlutterNativeSplash.remove();
 }
