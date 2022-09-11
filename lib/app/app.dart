@@ -43,21 +43,22 @@ class MyApp extends StatelessWidget {
               ),
             ],
           ),
+          GoRoute(
+            path: 'video',
+            builder: (BuildContext context, GoRouterState state) {
+              final id = state.queryParams['id'];
+              return VideoPage(id: id!);
+            },
+          )
         ],
-      ),
-      GoRoute(
-        path: '/video',
-        builder: (BuildContext context, GoRouterState state) {
-          final id = state.queryParams['id'];
-          return VideoPage(id: id!);
-        },
       ),
       GoRoute(
         path: '/trimmer',
         builder: (BuildContext context, GoRouterState state) {
           final path = state.queryParams['path'];
           final caller = state.queryParams['caller'];
-          return TrimmerPage(path: path!, caller: caller!);
+          final id = state.queryParams['id'];
+          return TrimmerPage(path: path!, caller: caller!, id: id);
         },
       ),
     ],

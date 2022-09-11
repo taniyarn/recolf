@@ -16,13 +16,11 @@ class PreviewPage extends StatelessWidget {
   final String path;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          CameraBloc(RepositoryProvider.of<VideoService>(context)),
-      child: PreviewScaffold(path: path),
-    );
-  }
+  Widget build(BuildContext context) => BlocProvider(
+        create: (context) =>
+            CameraBloc(RepositoryProvider.of<VideoService>(context)),
+        child: PreviewScaffold(path: path),
+      );
 }
 
 class PreviewScaffold extends StatefulWidget {
@@ -39,16 +37,17 @@ class _PreviewScaffoldState extends State<PreviewScaffold> {
 
   @override
   void initState() {
-    super.initState();
     _videoPlayerController = VideoPlayerController.file(File(widget.path));
 
     _videoPlayerController
       ..addListener(() {
+        print(_videoPlayerController.value.position);
         setState(() {});
       })
-      ..setLooping(true);
-    _videoPlayerController.initialize().then((_) => setState(() {}));
-    _videoPlayerController.play();
+      ..setLooping(true)
+      ..initialize().then((_) => setState(() {}))
+      ..play();
+    super.initState();
   }
 
   @override
@@ -58,80 +57,79 @@ class _PreviewScaffoldState extends State<PreviewScaffold> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Directory(widget.path).deleteSync(recursive: true);
-            context.go('/');
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.content_cut),
-            onPressed: () => context
-                .go('/trimmer?path=${widget.path}&caller=/camera/preview/'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.check),
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
-              context.read<CameraBloc>().add(
-                    AddVideoEvent(
-                      path: widget.path,
-                    ),
-                  );
+              Directory(widget.path).deleteSync(recursive: true);
               context.go('/');
             },
           ),
-        ],
-      ),
-      extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          VideoPlayer(_videoPlayerController),
-          _ControlsOverlay(controller: _videoPlayerController),
-          if (_videoPlayerController.value.duration.inMilliseconds == 0)
-            const SizedBox.shrink()
-          else
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: SizedBox(
-                height: 56,
-                child: Slider(
-                  value: _videoPlayerController.value.position.inMilliseconds /
-                      _videoPlayerController.value.duration.inMilliseconds,
-                  onChanged: (progress) {
-                    _videoPlayerController.seekTo(
-                      _videoPlayerController.value.duration * progress,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.content_cut),
+              onPressed: () => context
+                  .go('/trimmer?path=${widget.path}&caller=/camera/preview/'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.check),
+              onPressed: () {
+                context.read<CameraBloc>().add(
+                      AddVideoEvent(
+                        path: widget.path,
+                      ),
                     );
-                  },
-                  onChangeStart: (_) {
-                    if (!_videoPlayerController.value.isInitialized) {
-                      return;
-                    }
-                    if (_videoPlayerController.value.isPlaying) {
-                      played = true;
-                      _videoPlayerController.pause();
-                    } else {
-                      played = false;
-                    }
-                  },
-                  onChangeEnd: (_) {
-                    if (played &&
-                        _videoPlayerController.value.position !=
-                            _videoPlayerController.value.duration) {
-                      _videoPlayerController.play();
-                    }
-                  },
+                context.go('/');
+              },
+            ),
+          ],
+        ),
+        extendBodyBehindAppBar: true,
+        body: Stack(
+          children: [
+            VideoPlayer(_videoPlayerController),
+            _ControlsOverlay(controller: _videoPlayerController),
+            if (_videoPlayerController.value.duration.inMilliseconds == 0)
+              const SizedBox.shrink()
+            else
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: SizedBox(
+                  height: 56,
+                  child: Slider(
+                    value: _videoPlayerController
+                            .value.position.inMilliseconds /
+                        _videoPlayerController.value.duration.inMilliseconds,
+                    onChanged: (progress) {
+                      _videoPlayerController.seekTo(
+                        _videoPlayerController.value.duration * progress,
+                      );
+                    },
+                    onChangeStart: (_) {
+                      if (!_videoPlayerController.value.isInitialized) {
+                        return;
+                      }
+                      if (_videoPlayerController.value.isPlaying) {
+                        played = true;
+                        _videoPlayerController.pause();
+                      } else {
+                        played = false;
+                      }
+                    },
+                    onChangeEnd: (_) {
+                      if (played &&
+                          _videoPlayerController.value.position !=
+                              _videoPlayerController.value.duration) {
+                        _videoPlayerController.play();
+                      }
+                    },
+                  ),
                 ),
               ),
-            ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 }
 
 class _ControlsOverlay extends StatefulWidget {

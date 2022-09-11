@@ -9,9 +9,11 @@ class TrimmerPage extends StatefulWidget {
     Key? key,
     required this.path,
     required this.caller,
+    this.id,
   }) : super(key: key);
   final String path;
   final String caller;
+  final String? id;
 
   @override
   _TrimmerPageState createState() => _TrimmerPageState();
@@ -46,7 +48,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
         debugPrint('OUTPUT PATH: $outputPath');
         Directory(widget.path).deleteSync(recursive: true);
         await File(outputPath!).rename(widget.path);
-        context.go('${widget.caller}?path=${widget.path}');
+        context.go('${widget.caller}?path=${widget.path}&id=${widget.id}');
       },
     );
   }

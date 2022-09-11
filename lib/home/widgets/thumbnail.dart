@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:recolf/models/shape.dart';
 
 class Thumbnail extends StatelessWidget {
   const Thumbnail({
@@ -23,15 +22,16 @@ class Thumbnail extends StatelessWidget {
       fit: BoxFit.cover,
     );
     return GestureDetector(
-        onTap: () {
-          context.go('/video?id=$id');
-        },
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(32), // Image border
-          child: SizedBox.fromSize(
-            size: Size.fromRadius(48), // Image radius
-            child: image,
-          ),
-        ));
+      onTap: () {
+        context.go('/video?id=$id');
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16), // Image border
+        child: SizedBox.fromSize(
+          size: const Size.fromRadius(16), // Image radius
+          child: image,
+        ),
+      ),
+    );
   }
 }

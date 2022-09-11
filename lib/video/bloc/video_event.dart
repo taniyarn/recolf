@@ -39,3 +39,7 @@ class ShapesChanged extends VideoEvent {
   @override
   List<Object?> get props => [shapes];
 }
+
+class ShapesDeactivated extends VideoEvent {
+  const ShapesDeactivated();
+}

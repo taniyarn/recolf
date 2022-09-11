@@ -12,16 +12,15 @@ import 'package:video_player/video_player.dart';
 class VideoPage extends StatelessWidget {
   const VideoPage({Key? key, required this.id}) : super(key: key);
   final String id;
+
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => VideoBloc(
-        videoService: RepositoryProvider.of<VideoService>(context),
-        id: id,
-      ),
-      child: const VideoScaffold(),
-    );
-  }
+  Widget build(BuildContext context) => BlocProvider(
+        create: (context) => VideoBloc(
+          videoService: RepositoryProvider.of<VideoService>(context),
+          id: id,
+        ),
+        child: const VideoScaffold(),
+      );
 }
 
 class VideoScaffold extends StatefulWidget {
@@ -33,18 +32,20 @@ class VideoScaffold extends StatefulWidget {
 
 class _VideoScaffoldState extends State<VideoScaffold> {
   late VideoPlayerController _videoPlayerController;
+  bool played = false;
 
   @override
   void initState() {
     _videoPlayerController = VideoPlayerController.file(
       File(context.read<VideoBloc>().state.video.path),
     );
+
     _videoPlayerController
       ..addListener(() {
         setState(() {});
       })
       ..setLooping(true)
-      ..initialize()
+      ..initialize().then((_) => setState(() {}))
       ..play();
     super.initState();
   }
@@ -56,124 +57,137 @@ class _VideoScaffoldState extends State<VideoScaffold> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          BlocBuilder<VideoBloc, VideoState>(
-            builder: (context, state) {
-              if (state.mode == VideoMode.drawMode) {
-                return IconButton(
-                  icon: Icon(state.type.getIcon()),
-                  onPressed: () {
-                    context.read<VideoBloc>().add(
-                          ShapeTypeChanged(state.type.next()),
-                        );
-                  },
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          ),
-          IconButton(
-            icon: BlocBuilder<VideoBloc, VideoState>(
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          actions: [
+            BlocBuilder<VideoBloc, VideoState>(
               builder: (context, state) {
-                return Icon(state.mode.getIcon());
+                if (state.mode == VideoMode.drawMode) {
+                  return IconButton(
+                    icon: Icon(state.type.getIcon()),
+                    onPressed: () {
+                      context.read<VideoBloc>().add(
+                            ShapeTypeChanged(state.type.next()),
+                          );
+                    },
+                  );
+                }
+                return const SizedBox.shrink();
               },
             ),
-            onPressed: () {
-              context.read<VideoBloc>().add(
-                    VideoModeChanged(
-                      context.read<VideoBloc>().state.mode.next(),
-                    ),
-                  );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.check),
-            onPressed: () {
-              context.go('/');
-            },
-          )
-        ],
-      ),
-      extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          VideoPlayer(_videoPlayerController),
-          _ControlsOverlay(controller: _videoPlayerController),
-          const DrawView(),
-          if (_videoPlayerController.value.duration.inMilliseconds == 0)
-            const SizedBox.shrink()
-          else
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: SizedBox(
-                height: 56,
-                child: Slider(
-                  value: _videoPlayerController.value.position.inMilliseconds /
-                      _videoPlayerController.value.duration.inMilliseconds,
-                  onChanged: (progress) {
-                    print('onChanged');
-                    _videoPlayerController.seekTo(
-                        _videoPlayerController.value.duration * progress);
-                  },
-                  onChangeStart: (_) {
-                    print('onChangedStart');
-                    if (!_videoPlayerController.value.isInitialized) {
-                      return;
-                    }
-                    if (_videoPlayerController.value.isPlaying) {
-                      _videoPlayerController.pause();
-                    }
-                  },
-                  onChangeEnd: (_) {
-                    print('onChangedEnd');
-                    if (_videoPlayerController.value.isPlaying &&
-                        _videoPlayerController.value.position !=
-                            _videoPlayerController.value.duration) {
-                      _videoPlayerController.play();
-                    }
-                  },
-                ),
+            IconButton(
+              icon: BlocBuilder<VideoBloc, VideoState>(
+                builder: (context, state) {
+                  return Icon(state.mode.getIcon());
+                },
+              ),
+              onPressed: () {
+                context.read<VideoBloc>().add(
+                      VideoModeChanged(
+                        context.read<VideoBloc>().state.mode.next(),
+                      ),
+                    );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.content_cut),
+              onPressed: () => context.go(
+                '/trimmer?path=${context.read<VideoBloc>().state.video.path}&caller=/video&id=${context.read<VideoBloc>().state.video.id}',
               ),
             ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+        extendBodyBehindAppBar: true,
+        body: Stack(
+          children: [
+            VideoPlayer(_videoPlayerController),
+            _ControlsOverlay(controller: _videoPlayerController),
+            const DrawView(),
+            if (_videoPlayerController.value.duration.inMilliseconds == 0)
+              const SizedBox.shrink()
+            else
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: SizedBox(
+                  height: 56,
+                  child: Slider(
+                    value: _videoPlayerController
+                            .value.position.inMilliseconds /
+                        _videoPlayerController.value.duration.inMilliseconds,
+                    onChanged: (progress) {
+                      _videoPlayerController.seekTo(
+                        _videoPlayerController.value.duration * progress,
+                      );
+                    },
+                    onChangeStart: (_) {
+                      if (!_videoPlayerController.value.isInitialized) {
+                        return;
+                      }
+                      if (_videoPlayerController.value.isPlaying) {
+                        _videoPlayerController.pause();
+                      }
+                    },
+                    onChangeEnd: (_) {
+                      if (played &&
+                          _videoPlayerController.value.position !=
+                              _videoPlayerController.value.duration) {
+                        _videoPlayerController.play();
+                      }
+                    },
+                  ),
+                ),
+              ),
+          ],
+        ),
+      );
 }
 
-class _ControlsOverlay extends StatelessWidget {
+class _ControlsOverlay extends StatefulWidget {
   const _ControlsOverlay({Key? key, required this.controller})
       : super(key: key);
-
   final VideoPlayerController controller;
+
+  @override
+  State<_ControlsOverlay> createState() => _ControlsOverlayState();
+}
+
+class _ControlsOverlayState extends State<_ControlsOverlay> {
+  bool displayIcon = false;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
         AnimatedSwitcher(
-          duration: const Duration(milliseconds: 50),
-          reverseDuration: const Duration(milliseconds: 200),
-          child: controller.value.isPlaying
-              ? const SizedBox.shrink()
-              : Container(
-                  color: Colors.black26,
-                  child: const Center(
+          duration: const Duration(milliseconds: 100),
+          child: displayIcon
+              ? Container(
+                  color: Colors.black12,
+                  child: Center(
                     child: Icon(
-                      Icons.play_arrow,
+                      widget.controller.value.isPlaying
+                          ? Icons.play_arrow
+                          : Icons.pause,
                       color: Colors.white,
-                      size: 100.0,
-                      semanticLabel: 'Play',
+                      size: 108,
                     ),
                   ),
-                ),
+                )
+              : const SizedBox.shrink(),
         ),
         GestureDetector(
           onTap: () {
-            controller.value.isPlaying ? controller.pause() : controller.play();
+            context.read<VideoBloc>().add(const ShapesDeactivated());
+            widget.controller.value.isPlaying
+                ? widget.controller.pause()
+                : widget.controller.play();
+
+            displayIcon = true;
+            Future<void>.delayed(const Duration(milliseconds: 500)).then(
+              (_) => setState(
+                () => displayIcon = false,
+              ),
+            );
           },
         ),
       ],
