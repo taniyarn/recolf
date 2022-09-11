@@ -18,10 +18,18 @@ class HomeGridView extends StatelessWidget {
           case HomeStatus.initial:
             return const SizedBox.shrink();
           case HomeStatus.loaded:
-            final outputFormat = DateFormat('M/d');
+            final currentFormat = DateFormat('M/d');
+            final previousFormat = DateFormat('y/M/d');
             final videoMap = <String, List<Video>>{};
+            final currentYear = DateTime.now().year;
             for (final video in state.videos) {
-              final date = outputFormat.format(video.datetime);
+              late String date;
+              if (currentYear == video.datetime.year) {
+                date = currentFormat.format(video.datetime);
+              } else {
+                date = previousFormat.format(video.datetime);
+              }
+
               if (videoMap.containsKey(date)) {
                 videoMap[date]!.add(video);
               } else {
