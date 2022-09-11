@@ -8,7 +8,11 @@ import 'package:recolf/services/video.dart';
 import 'package:video_player/video_player.dart';
 
 class PreviewPage extends StatelessWidget {
-  const PreviewPage({Key? key, required this.path}) : super(key: key);
+  const PreviewPage({
+    Key? key,
+    required this.path,
+  }) : super(key: key);
+
   final String path;
 
   @override
@@ -31,12 +35,7 @@ class PreviewScaffold extends StatefulWidget {
 
 class _PreviewScaffoldState extends State<PreviewScaffold> {
   late VideoPlayerController _videoPlayerController;
-
-  @override
-  void dispose() {
-    _videoPlayerController.dispose();
-    super.dispose();
-  }
+  bool played = false;
 
   @override
   void initState() {
@@ -53,10 +52,28 @@ class _PreviewScaffoldState extends State<PreviewScaffold> {
   }
 
   @override
+  void dispose() {
+    _videoPlayerController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Directory(widget.path).deleteSync(recursive: true);
+            context.go('/');
+          },
+        ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.content_cut),
+            onPressed: () => context
+                .go('/trimmer?path=${widget.path}&caller=/camera/preview/'),
+          ),
           IconButton(
             icon: const Icon(Icons.check),
             onPressed: () {
@@ -67,7 +84,7 @@ class _PreviewScaffoldState extends State<PreviewScaffold> {
                   );
               context.go('/');
             },
-          )
+          ),
         ],
       ),
       extendBodyBehindAppBar: true,
@@ -95,11 +112,14 @@ class _PreviewScaffoldState extends State<PreviewScaffold> {
                       return;
                     }
                     if (_videoPlayerController.value.isPlaying) {
+                      played = true;
                       _videoPlayerController.pause();
+                    } else {
+                      played = false;
                     }
                   },
                   onChangeEnd: (_) {
-                    if (_videoPlayerController.value.isPlaying &&
+                    if (played &&
                         _videoPlayerController.value.position !=
                             _videoPlayerController.value.duration) {
                       _videoPlayerController.play();
@@ -114,36 +134,51 @@ class _PreviewScaffoldState extends State<PreviewScaffold> {
   }
 }
 
-class _ControlsOverlay extends StatelessWidget {
+class _ControlsOverlay extends StatefulWidget {
   const _ControlsOverlay({Key? key, required this.controller})
       : super(key: key);
-
   final VideoPlayerController controller;
+
+  @override
+  State<_ControlsOverlay> createState() => _ControlsOverlayState();
+}
+
+class _ControlsOverlayState extends State<_ControlsOverlay> {
+  bool displayIcon = false;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
         AnimatedSwitcher(
-          duration: const Duration(milliseconds: 50),
-          reverseDuration: const Duration(milliseconds: 200),
-          child: controller.value.isPlaying
-              ? const SizedBox.shrink()
-              : Container(
-                  color: Colors.black26,
-                  child: const Center(
+          duration: const Duration(milliseconds: 100),
+          child: displayIcon
+              ? Container(
+                  color: Colors.black12,
+                  child: Center(
                     child: Icon(
-                      Icons.play_arrow,
+                      widget.controller.value.isPlaying
+                          ? Icons.play_arrow
+                          : Icons.pause,
                       color: Colors.white,
-                      size: 100.0,
-                      semanticLabel: 'Play',
+                      size: 108,
                     ),
                   ),
-                ),
+                )
+              : const SizedBox.shrink(),
         ),
         GestureDetector(
           onTap: () {
-            controller.value.isPlaying ? controller.pause() : controller.play();
+            widget.controller.value.isPlaying
+                ? widget.controller.pause()
+                : widget.controller.play();
+
+            displayIcon = true;
+            Future<void>.delayed(const Duration(milliseconds: 500)).then(
+              (_) => setState(
+                () => displayIcon = false,
+              ),
+            );
           },
         ),
       ],

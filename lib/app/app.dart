@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recolf/camera/view/camera_page.dart';
 import 'package:recolf/camera/view/preview_page.dart';
+import 'package:recolf/camera/view/trimmer_page.dart';
 import 'package:recolf/home/view/home_page.dart';
 import 'package:recolf/services/video.dart';
 import 'package:recolf/video/view/video_page.dart';
@@ -24,30 +25,39 @@ class MyApp extends StatelessWidget {
   final GoRouter _router = GoRouter(
     routes: <GoRoute>[
       GoRoute(
-          path: '/',
-          builder: (BuildContext context, GoRouterState state) =>
-              const HomePage(),
-          routes: [
-            GoRoute(
-              path: 'camera',
-              builder: (BuildContext context, GoRouterState state) =>
-                  const CameraPage(),
-              routes: [
-                GoRoute(
-                  path: 'preview',
-                  builder: (BuildContext context, GoRouterState state) {
-                    final path = state.queryParams['path'];
-                    return PreviewPage(path: path!);
-                  },
-                ),
-              ],
-            ),
-          ]),
+        path: '/',
+        builder: (BuildContext context, GoRouterState state) =>
+            const HomePage(),
+        routes: [
+          GoRoute(
+            path: 'camera',
+            builder: (BuildContext context, GoRouterState state) =>
+                const CameraPage(),
+            routes: [
+              GoRoute(
+                path: 'preview',
+                builder: (BuildContext context, GoRouterState state) {
+                  final path = state.queryParams['path'];
+                  return PreviewPage(path: path!);
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
       GoRoute(
         path: '/video',
         builder: (BuildContext context, GoRouterState state) {
           final id = state.queryParams['id'];
           return VideoPage(id: id!);
+        },
+      ),
+      GoRoute(
+        path: '/trimmer',
+        builder: (BuildContext context, GoRouterState state) {
+          final path = state.queryParams['path'];
+          final caller = state.queryParams['caller'];
+          return TrimmerPage(path: path!, caller: caller!);
         },
       ),
     ],

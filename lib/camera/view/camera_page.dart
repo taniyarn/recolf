@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({
@@ -50,7 +53,14 @@ class CameraPageState extends State<CameraPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            context.go('/');
+          },
+        ),
+      ),
       body: _isReady
           ? Stack(
               children: [
@@ -62,7 +72,7 @@ class CameraPageState extends State<CameraPage> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(32.0),
+                  padding: const EdgeInsets.all(32),
                   child: Align(
                     alignment: Alignment.bottomCenter,
                     child: _isRecording
@@ -71,9 +81,15 @@ class CameraPageState extends State<CameraPage> {
                               try {
                                 final xfile =
                                     await _controller.stopVideoRecording();
-
-                                context
-                                    .go('/camera/preview?path=${xfile.path}');
+                                final dir =
+                                    await getApplicationDocumentsDirectory();
+                                final path = dir.path;
+                                final directory = Directory('$path/video');
+                                await directory.create(recursive: true);
+                                final newPath =
+                                    '${directory.path}/${xfile.name}';
+                                await File(xfile.path).rename(newPath);
+                                context.go('/camera/preview?path=$newPath');
                               } catch (e) {
                                 print(e);
                               }
@@ -127,18 +143,21 @@ class RecordButton extends StatelessWidget {
         ),
         child: isStarted
             ? Padding(
-                padding: const EdgeInsets.all(12.0),
+                padding: const EdgeInsets.all(12),
                 child: Container(
                   decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      color: Colors.red),
+                    borderRadius: BorderRadius.all(Radius.circular(4)),
+                    color: Colors.red,
+                  ),
                 ),
               )
             : Container(
                 width: 48,
                 height: 48,
                 decoration: const BoxDecoration(
-                    shape: BoxShape.circle, color: Colors.red),
+                  shape: BoxShape.circle,
+                  color: Colors.red,
+                ),
               ),
       ),
     );
