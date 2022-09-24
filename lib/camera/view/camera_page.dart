@@ -66,11 +66,12 @@ class CameraPageState extends State<CameraPage> {
       body: _isReady
           ? Stack(
               children: [
-                SizedBox(
-                  height: double.infinity,
-                  width: double.infinity,
-                  child: CameraPreview(
-                    _controller,
+                ClipRect(
+                  child: Transform.scale(
+                    scale: _controller.value.aspectRatio,
+                    child: Center(
+                      child: CameraPreview(_controller),
+                    ),
                   ),
                 ),
                 Padding(
