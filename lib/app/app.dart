@@ -21,7 +21,11 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
             appBarTheme: const AppBarTheme(
               systemOverlayStyle: SystemUiOverlayStyle.dark,
+              foregroundColor: Colors.white,
             ),
+            textTheme:
+                const TextTheme(bodyText1: TextStyle(color: Colors.white)),
+            scaffoldBackgroundColor: const Color.fromRGBO(1, 1, 1, 1),
           ),
           routeInformationParser: _router.routeInformationParser,
           routerDelegate: _router.routerDelegate,

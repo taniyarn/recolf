@@ -1,12 +1,17 @@
 part of 'home_bloc.dart';
 
-abstract class HomeEvent extends Equatable {
+abstract class HomeEvent {
   const HomeEvent();
-
-  @override
-  List<Object?> get props => [];
 }
 
 class VideosFetched extends HomeEvent {}
 
-class ThumbnailsFetched extends HomeEvent {}
+class SetDeleteMode extends HomeEvent {
+  const SetDeleteMode({required this.deleteMode});
+  final bool deleteMode;
+}
+
+class AddSelectedVideos extends HomeEvent {
+  const AddSelectedVideos({required this.video});
+  final Video video;
+}

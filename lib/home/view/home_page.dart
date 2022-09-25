@@ -17,18 +17,18 @@ class HomePage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.transparent,
-          leading: IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () {
+          leading: GestureDetector(
+            onTap: () {
               context.go('/');
             },
+            child: const Icon(Icons.menu),
           ),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.add_a_photo),
-              onPressed: () {
+            GestureDetector(
+              onTap: () {
                 context.go('/camera');
               },
+              child: const Icon(Icons.add_a_photo),
             )
           ],
         ),

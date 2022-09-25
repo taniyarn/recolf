@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:recolf/home/bloc/home_bloc.dart';
 import 'package:recolf/models/video.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
@@ -14,7 +16,7 @@ class Thumbnail extends StatelessWidget {
 
   final Video video;
 
-  Future<String> temp() async {
+  Future<String> fetchThumbnail() async {
     var _tempDir = '';
     await getTemporaryDirectory().then((d) => _tempDir = d.path);
     final thumbnailPath = await VideoThumbnail.thumbnailFile(
@@ -27,36 +29,59 @@ class Thumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String>(
-      future: temp(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final file = File(snapshot.data!);
-          final bytes = file.readAsBytesSync();
-          final image = Image.memory(
-            bytes,
-            fit: BoxFit.cover,
-          );
-          return GestureDetector(
-            onTap: () {
-              context.go('/video?id=${video.id}');
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: FutureBuilder<String>(
+            future: fetchThumbnail(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final file = File(snapshot.data!);
+                final bytes = file.readAsBytesSync();
+                final image = Image.memory(
+                  bytes,
+                  fit: BoxFit.cover,
+                );
+                return GestureDetector(
+                  onTap: () {
+                    context.go('/video?id=${video.id}');
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16), // Image border
+                    child: SizedBox.fromSize(
+                      size: const Size.fromRadius(16), // Image radius
+                      child: image,
+                    ),
+                  ),
+                );
+              }
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(16), // Image border
+                child: Container(
+                  color: Colors.grey[300],
+                ),
+              );
             },
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16), // Image border
-              child: SizedBox.fromSize(
-                size: const Size.fromRadius(16), // Image radius
-                child: image,
-              ),
-            ),
-          );
-        }
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(16), // Image border
-          child: Container(
-            color: Colors.grey[300],
           ),
-        );
-      },
+        ),
+        Positioned(
+          left: 0,
+          top: 0,
+          child: BlocBuilder<HomeBloc, HomeState>(
+            builder: (context, state) {
+              return Checkbox(
+                checkColor: Colors.white,
+                activeColor: Colors.amber,
+                value: state.selectedVideos.contains(video),
+                shape: const CircleBorder(),
+                onChanged: (bool? value) {
+                  context.read<HomeBloc>().add(AddSelectedVideos(video: video));
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

@@ -11,6 +11,8 @@ var _cache = <Video>[];
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc(this._video) : super(HomeState(videos: _cache)) {
     on<VideosFetched>(_onVideosFetched);
+    on<SetDeleteMode>(_onSetDeleteMode);
+    on<AddSelectedVideos>(_onAddSelectedVideos);
   }
 
   final VideoService _video;
@@ -21,20 +23,43 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   ) async {
     final stream = _video.subscribeVideos();
     emit(
-      HomeState(
+      state.copyWith(
         status: HomeStatus.loaded,
         videos: _video.getVideos(),
       ),
     );
+
     await emit.forEach(
       stream,
       onData: (List<Video> data) {
-        return HomeState(
+        return state.copyWith(
           status: HomeStatus.loaded,
           videos: data,
         );
       },
     );
+  }
+
+  Future<void> _onSetDeleteMode(
+    SetDeleteMode event,
+    Emitter<HomeState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        deleteMode: event.deleteMode,
+        selectedVideos: [],
+      ),
+    );
+  }
+
+  Future<void> _onAddSelectedVideos(
+    AddSelectedVideos event,
+    Emitter<HomeState> emit,
+  ) async {
+    emit(
+      state.copyWith(selectedVideos: [...state.selectedVideos, event.video]),
+    );
+    print(state.selectedVideos);
   }
 
   @override

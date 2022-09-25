@@ -51,7 +51,7 @@ class HomeGridView extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         dates[index],
-                        style: const TextStyle(fontSize: 24),
+                        style: Theme.of(context).textTheme.bodyText1,
                       ),
                     ),
                     SizedBox(
@@ -62,13 +62,17 @@ class HomeGridView extends StatelessWidget {
                         itemCount: videos!.length,
                         padding: const EdgeInsets.all(8),
                         itemBuilder: (context, listIndex) {
-                          return Container(
-                            height: 144,
-                            width: 144,
-                            padding: const EdgeInsets.all(8),
-                            child: Thumbnail(
-                              video: videos[listIndex],
-                            ),
+                          return LayoutBuilder(
+                            builder: (context, constraints) {
+                              return Container(
+                                height: constraints.maxHeight,
+                                width: constraints.maxHeight,
+                                padding: const EdgeInsets.all(8),
+                                child: Thumbnail(
+                                  video: videos[listIndex],
+                                ),
+                              );
+                            },
                           );
                         },
                       ),
