@@ -39,47 +39,77 @@ class HomeGridView extends StatelessWidget {
 
             final dates = videoMap.keys.toList();
 
-            return ListView.builder(
-              physics: const BouncingScrollPhysics(),
-              itemCount: dates.length,
-              itemBuilder: (context, index) {
-                final videos = videoMap[dates[index]];
-                return Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        dates[index],
-                        style: Theme.of(context).textTheme.bodyText1,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 160,
-                      child: ListView.builder(
-                        physics: const BouncingScrollPhysics(),
-                        scrollDirection: Axis.horizontal,
-                        itemCount: videos!.length,
-                        padding: const EdgeInsets.all(8),
-                        itemBuilder: (context, listIndex) {
-                          return LayoutBuilder(
-                            builder: (context, constraints) {
-                              return Container(
-                                height: constraints.maxHeight,
-                                width: constraints.maxHeight,
-                                padding: const EdgeInsets.all(8),
-                                child: Thumbnail(
-                                  video: videos[listIndex],
-                                ),
+            return Stack(
+              children: [
+                ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: dates.length,
+                  itemBuilder: (context, index) {
+                    final videos = videoMap[dates[index]];
+                    return Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            dates[index],
+                            style: Theme.of(context).textTheme.bodyText1,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 160,
+                          child: ListView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            scrollDirection: Axis.horizontal,
+                            itemCount: videos!.length,
+                            padding: const EdgeInsets.all(8),
+                            itemBuilder: (context, listIndex) {
+                              return LayoutBuilder(
+                                builder: (context, constraints) {
+                                  return Container(
+                                    height: constraints.maxHeight,
+                                    width: constraints.maxHeight,
+                                    padding: const EdgeInsets.all(8),
+                                    child: Thumbnail(
+                                      video: videos[listIndex],
+                                    ),
+                                  );
+                                },
                               );
                             },
-                          );
-                        },
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                if (state.deleteMode)
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      height: 128,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      width: double.infinity,
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              context
+                                  .read<HomeBloc>()
+                                  .add(const DeleteSelectedVideos());
+                            },
+                            child: const Icon(Icons.delete),
+                          )
+                        ],
                       ),
                     ),
-                  ],
-                );
-              },
+                  )
+                else
+                  const SizedBox.shrink()
+              ],
             );
         }
       },

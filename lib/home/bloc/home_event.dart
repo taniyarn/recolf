@@ -15,3 +15,7 @@ class AddSelectedVideos extends HomeEvent {
   const AddSelectedVideos({required this.video});
   final Video video;
 }
+
+class DeleteSelectedVideos extends HomeEvent {
+  const DeleteSelectedVideos();
+}

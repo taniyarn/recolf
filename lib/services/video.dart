@@ -57,4 +57,16 @@ class VideoService {
       ),
     );
   }
+
+  void deleteVideos({
+    required List<Video> deletedVideos,
+  }) {
+    final videos = _videos.values.where(
+      (video) =>
+          deletedVideos.any((deletedVideo) => deletedVideo.id == video.id),
+    );
+    final keys = videos.map((video) => video.key as int);
+
+    _videos.deleteAll(keys);
+  }
 }

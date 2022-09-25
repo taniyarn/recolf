@@ -13,6 +13,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<VideosFetched>(_onVideosFetched);
     on<SetDeleteMode>(_onSetDeleteMode);
     on<AddSelectedVideos>(_onAddSelectedVideos);
+    on<DeleteSelectedVideos>(_onDeleteSelectedVideos);
   }
 
   final VideoService _video;
@@ -59,7 +60,16 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     emit(
       state.copyWith(selectedVideos: [...state.selectedVideos, event.video]),
     );
-    print(state.selectedVideos);
+  }
+
+  Future<void> _onDeleteSelectedVideos(
+    DeleteSelectedVideos event,
+    Emitter<HomeState> emit,
+  ) async {
+    _video.deleteVideos(
+      deletedVideos: state.selectedVideos,
+    );
+    add(const SetDeleteMode(deleteMode: false));
   }
 
   @override
