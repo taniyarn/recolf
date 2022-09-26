@@ -38,9 +38,10 @@ class CameraPageState extends State<CameraPage> {
       final camera = cameras.first;
       _controller = CameraController(
         camera,
-        ResolutionPreset.medium,
+        ResolutionPreset.max,
       );
       await _controller.initialize();
+      await _controller.prepareForVideoRecording();
     } on CameraException catch (_) {
       // do something on error.
     }
@@ -55,21 +56,23 @@ class CameraPageState extends State<CameraPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
+        leading: GestureDetector(
+          onTap: () {
             context.go('/');
           },
+          child: const Icon(Icons.arrow_back),
         ),
       ),
       extendBodyBehindAppBar: true,
       body: _isReady
           ? Stack(
               children: [
-                ClipRect(
-                  child: Transform.scale(
-                    scale: _controller.value.aspectRatio,
-                    child: Center(
+                Positioned.fill(
+                  child: FittedBox(
+                    fit: BoxFit.cover,
+                    child: SizedBox(
+                      height: _controller.value.aspectRatio,
+                      width: 1,
                       child: CameraPreview(_controller),
                     ),
                   ),
