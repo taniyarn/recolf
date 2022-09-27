@@ -100,7 +100,7 @@ class CameraPageState extends State<CameraPage> {
                                 print(e);
                               }
                             },
-                            isStarted: true,
+                            isRecording: true,
                           )
                         : RecordButton(
                             onTap: () async {
@@ -128,17 +128,17 @@ class CameraPageState extends State<CameraPage> {
 }
 
 class RecordButton extends StatelessWidget {
-  RecordButton({
+  const RecordButton({
     Key? key,
-    this.isStarted = false,
+    this.isRecording = false,
     this.onTap,
   }) : super(key: key);
-  bool isStarted;
-  VoidCallback? onTap;
+  final bool isRecording;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 56,
@@ -147,24 +147,22 @@ class RecordButton extends StatelessWidget {
           border: Border.all(width: 4, color: Colors.white),
           shape: BoxShape.circle,
         ),
-        child: isStarted
-            ? Padding(
-                padding: const EdgeInsets.all(12),
-                child: Container(
-                  decoration: const BoxDecoration(
+        child: Center(
+          child: AnimatedContainer(
+            width: isRecording ? 24 : 48,
+            height: isRecording ? 24 : 48,
+            duration: const Duration(milliseconds: 100),
+            decoration: isRecording
+                ? const BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(4)),
                     color: Colors.red,
+                  )
+                : const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(24)),
+                    color: Colors.red,
                   ),
-                ),
-              )
-            : Container(
-                width: 48,
-                height: 48,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.red,
-                ),
-              ),
+          ),
+        ),
       ),
     );
   }

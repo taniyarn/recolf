@@ -19,22 +19,25 @@ class VideoAdapter extends TypeAdapter<Video> {
     return Video(
       id: fields[0] as String,
       datetime: fields[1] as DateTime,
-      path: fields[2] as String,
-      shapes: (fields[3] as List?)?.cast<Shape>(),
+      videoPath: fields[2] as String,
+      thumbnailPath: fields[3] as String,
+      shapes: (fields[4] as List?)?.cast<Shape>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, Video obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.datetime)
       ..writeByte(2)
-      ..write(obj.path)
+      ..write(obj.videoPath)
       ..writeByte(3)
+      ..write(obj.thumbnailPath)
+      ..writeByte(4)
       ..write(obj.shapes);
   }
 

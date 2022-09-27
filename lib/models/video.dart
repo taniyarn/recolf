@@ -7,7 +7,8 @@ class Video extends HiveObject {
   Video({
     required this.id,
     required this.datetime,
-    required this.path,
+    required this.videoPath,
+    required this.thumbnailPath,
     List<Shape>? shapes,
   }) : shapes = shapes ?? [];
 
@@ -18,21 +19,26 @@ class Video extends HiveObject {
   DateTime datetime;
 
   @HiveField(2)
-  String path;
+  String videoPath;
 
   @HiveField(3)
+  String thumbnailPath;
+
+  @HiveField(4)
   List<Shape> shapes;
 
   Video copyWith({
     String? id,
     DateTime? datetime,
-    String? path,
+    String? videoPath,
+    String? thumbnailPath,
     List<Shape>? shapes,
   }) =>
       Video(
         id: id ?? this.id,
         datetime: datetime ?? this.datetime,
-        path: path ?? this.path,
+        videoPath: videoPath ?? this.videoPath,
+        thumbnailPath: thumbnailPath ?? this.thumbnailPath,
         shapes: shapes ?? this.shapes,
       );
 }

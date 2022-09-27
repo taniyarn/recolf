@@ -279,6 +279,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "8.0.1"
+  flutter_hooks:
+    dependency: transitive
+    description:
+      name: flutter_hooks
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.18.5+1"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:
@@ -609,6 +616,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  smooth_video_progress:
+    dependency: "direct main"
+    description:
+      name: smooth_video_progress
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.4"
   source_gen:
     dependency: transitive
     description:

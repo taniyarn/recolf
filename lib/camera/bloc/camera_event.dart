@@ -9,11 +9,13 @@ abstract class CameraEvent extends Equatable {
 
 class AddVideoEvent extends CameraEvent {
   const AddVideoEvent({
-    required this.path,
+    required this.videoPath,
+    required this.thumbnailPath,
   });
 
-  final String path;
+  final String videoPath;
+  final String thumbnailPath;
 
   @override
-  List<Object?> get props => [path];
+  List<Object?> get props => [videoPath, thumbnailPath];
 }

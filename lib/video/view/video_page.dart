@@ -37,7 +37,7 @@ class _VideoScaffoldState extends State<VideoScaffold> {
   @override
   void initState() {
     _videoPlayerController = VideoPlayerController.file(
-      File(context.read<VideoBloc>().state.video.path),
+      File(context.read<VideoBloc>().state.video.videoPath),
     );
 
     _videoPlayerController
@@ -123,7 +123,7 @@ class _VideoScaffoldState extends State<VideoScaffold> {
             IconButton(
               icon: const Icon(Icons.content_cut),
               onPressed: () => context.go(
-                '/trimmer?path=${context.read<VideoBloc>().state.video.path}&caller=/video&id=${context.read<VideoBloc>().state.video.id}',
+                '/trimmer?path=${context.read<VideoBloc>().state.video.videoPath}&caller=/video&id=${context.read<VideoBloc>().state.video.id}',
               ),
             ),
           ],
@@ -136,7 +136,8 @@ class _VideoScaffoldState extends State<VideoScaffold> {
             const DrawView(),
             if (_videoPlayerController.value.duration.inMilliseconds == 0 ||
                 _videoPlayerController.value.duration.inMilliseconds <
-                    _videoPlayerController.value.position.inMilliseconds)
+                    _videoPlayerController.value.position.inMilliseconds ||
+                _videoPlayerController.value.position.inMilliseconds < 0)
               const SizedBox.shrink()
             else
               Align(

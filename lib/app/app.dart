@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
             textTheme:
                 const TextTheme(bodyText1: TextStyle(color: Colors.white)),
             scaffoldBackgroundColor: const Color.fromRGBO(1, 1, 1, 1),
+            primaryColor: const Color.fromRGBO(255, 75, 44, 1),
           ),
           routeInformationParser: _router.routeInformationParser,
           routerDelegate: _router.routerDelegate,

@@ -3,9 +3,25 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:recolf/camera/bloc/camera_bloc.dart';
 import 'package:recolf/services/video.dart';
+import 'package:smooth_video_progress/smooth_video_progress.dart';
 import 'package:video_player/video_player.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+
+Future<String> generateThumbnail(String videoPath) async {
+  final dir = await getApplicationDocumentsDirectory();
+  final path = dir.path;
+  final directory = Directory('$path/video');
+  await directory.create(recursive: true);
+  final thumbnailPath = await VideoThumbnail.thumbnailFile(
+    video: videoPath,
+    thumbnailPath: directory.path,
+  );
+
+  return thumbnailPath!;
+}
 
 class PreviewPage extends StatelessWidget {
   const PreviewPage({
@@ -63,25 +79,27 @@ class _PreviewScaffoldState extends State<PreviewScaffold> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.transparent,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
+          leading: GestureDetector(
+            child: const Icon(Icons.arrow_back),
+            onTap: () {
               Directory(widget.path).deleteSync(recursive: true);
               context.go('/');
             },
           ),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.content_cut),
-              onPressed: () => context
+            GestureDetector(
+              child: const Icon(Icons.content_cut),
+              onTap: () => context
                   .go('/trimmer?path=${widget.path}&caller=/camera/preview/'),
             ),
-            IconButton(
-              icon: const Icon(Icons.check),
-              onPressed: () {
+            GestureDetector(
+              child: const Icon(Icons.check),
+              onTap: () async {
+                final thumbnailPath = await generateThumbnail(widget.path);
                 context.read<CameraBloc>().add(
                       AddVideoEvent(
-                        path: widget.path,
+                        videoPath: widget.path,
+                        thumbnailPath: thumbnailPath,
                       ),
                     );
                 context.go('/');
@@ -94,48 +112,55 @@ class _PreviewScaffoldState extends State<PreviewScaffold> {
           children: [
             VideoPlayer(_videoPlayerController),
             _ControlsOverlay(controller: _videoPlayerController),
-            if (_videoPlayerController.value.duration.inMilliseconds == 0)
-              const SizedBox.shrink()
-            else
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: SizedBox(
-                  height: 56,
-                  child: Slider(
-                    activeColor: const Color.fromARGB(255, 255, 0, 0),
-                    inactiveColor: Colors.grey[600],
-                    value: _videoPlayerController
-                            .value.position.inMilliseconds /
-                        _videoPlayerController.value.duration.inMilliseconds,
-                    onChanged: (progress) {
-                      _videoPlayerController.seekTo(
-                        _videoPlayerController.value.duration * progress,
-                      );
-                    },
-                    onChangeStart: (_) {
-                      if (!_videoPlayerController.value.isInitialized) {
-                        return;
-                      }
-                      if (_videoPlayerController.value.isPlaying) {
-                        played = true;
-                        _videoPlayerController.pause();
-                      } else {
-                        played = false;
-                      }
-                    },
-                    onChangeEnd: (_) {
-                      if (played &&
-                          _videoPlayerController.value.position !=
-                              _videoPlayerController.value.duration) {
-                        _videoPlayerController.play();
-                      }
-                    },
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(
+                height: 112,
+                child: SmoothVideoProgress(
+                  controller: _videoPlayerController,
+                  builder: (context, position, duration, _) =>
+                      _VideoProgressSlider(
+                    position: position,
+                    duration: duration,
+                    controller: _videoPlayerController,
+                    swatch: Theme.of(context).primaryColor,
                   ),
                 ),
               ),
+            ),
           ],
         ),
       );
+}
+
+class _VideoProgressSlider extends StatelessWidget {
+  const _VideoProgressSlider({
+    required this.position,
+    required this.duration,
+    required this.controller,
+    required this.swatch,
+  });
+
+  final Duration position;
+  final Duration duration;
+  final VideoPlayerController controller;
+  final Color swatch;
+
+  @override
+  Widget build(BuildContext context) {
+    final max = duration.inMilliseconds.toDouble();
+    final value = position.inMilliseconds.clamp(0, max).toDouble();
+    return Slider(
+      max: max,
+      value: value,
+      onChanged: (value) =>
+          controller.seekTo(Duration(milliseconds: value.toInt())),
+      onChangeStart: (_) => controller.pause(),
+      onChangeEnd: (_) => controller.play(),
+      activeColor: swatch,
+      inactiveColor: Colors.white,
+    );
+  }
 }
 
 class _ControlsOverlay extends StatefulWidget {

@@ -28,7 +28,8 @@ class VideoService {
   }
 
   void addVideo({
-    required String path,
+    required String videoPath,
+    required String thumbnailPath,
   }) {
     final id = const Uuid().v4();
     final datetime = DateTime.now();
@@ -36,7 +37,8 @@ class VideoService {
       Video(
         id: id,
         datetime: datetime,
-        path: path,
+        videoPath: videoPath,
+        thumbnailPath: thumbnailPath,
       ),
     );
   }
@@ -49,12 +51,7 @@ class VideoService {
     final index = videoToEdit.key as int;
     await _videos.put(
       index,
-      Video(
-        id: videoToEdit.id,
-        datetime: videoToEdit.datetime,
-        path: videoToEdit.path,
-        shapes: shapes,
-      ),
+      videoToEdit.copyWith(shapes: shapes),
     );
   }
 
