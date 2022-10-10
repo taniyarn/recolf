@@ -39,29 +39,26 @@ class MyApp extends StatelessWidget {
         path: '/',
         builder: (BuildContext context, GoRouterState state) =>
             const HomePage(),
-        routes: [
-          GoRoute(
-            path: 'camera',
-            builder: (BuildContext context, GoRouterState state) =>
-                const CameraPage(),
-            routes: [
-              GoRoute(
-                path: 'preview',
-                builder: (BuildContext context, GoRouterState state) {
-                  final path = state.queryParams['path'];
-                  return PreviewPage(path: path!);
-                },
-              ),
-            ],
-          ),
-          GoRoute(
-            path: 'video',
-            builder: (BuildContext context, GoRouterState state) {
-              final id = state.queryParams['id'];
-              return VideoPage(id: id!);
-            },
-          )
-        ],
+      ),
+      GoRoute(
+        path: '/camera',
+        builder: (BuildContext context, GoRouterState state) =>
+            const CameraPage(),
+      ),
+      GoRoute(
+        path: '/preview',
+        builder: (BuildContext context, GoRouterState state) {
+          final path = state.queryParams['path'];
+          return PreviewPage(key: ObjectKey(path), path: path!);
+        },
+      ),
+      GoRoute(
+        path: '/video',
+        builder: (BuildContext context, GoRouterState state) {
+          final path = state.queryParams['path'];
+          final id = state.queryParams['id'];
+          return VideoPage(videoPath: path!, id: id!);
+        },
       ),
       GoRoute(
         path: '/trimmer',

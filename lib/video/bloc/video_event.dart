@@ -8,7 +8,10 @@ abstract class VideoEvent extends Equatable {
 }
 
 class VideoUpdated extends VideoEvent {
-  const VideoUpdated();
+  const VideoUpdated({this.videoPath, this.thumbnailPath});
+
+  final String? videoPath;
+  final String? thumbnailPath;
 }
 
 class VideoModeChanged extends VideoEvent {

@@ -29,6 +29,8 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   ) async {
     await _videoService.updateVideo(
       id: state.video.id,
+      videoPath: event.videoPath,
+      thumbnailPath: event.thumbnailPath,
       shapes: state.video.shapes.map((shape) {
         shape.active = false;
         return shape;

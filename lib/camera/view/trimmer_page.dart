@@ -21,7 +21,8 @@ class TrimmerPage extends StatefulWidget {
 }
 
 class _TrimmerPageState extends State<TrimmerPage> {
-  final Trimmer _trimmer = Trimmer();
+  late final Trimmer _trimmer;
+  late String videoPath;
 
   double _startValue = 0;
   double _endValue = 0;
@@ -29,24 +30,40 @@ class _TrimmerPageState extends State<TrimmerPage> {
   @override
   void initState() {
     super.initState();
-
+    _trimmer = Trimmer();
+    videoPath = widget.path;
     _loadVideo();
+  }
+
+  @override
+  void dispose() {
+    _trimmer.dispose();
+    super.dispose();
   }
 
   void _loadVideo() {
     _trimmer.loadVideo(videoFile: File(widget.path));
   }
 
-  void _saveVideo(BuildContext context) {
+  Future<void> saveVideo(BuildContext context) async {
     const videoFolderName = 'video';
 
-    _trimmer.saveTrimmedVideo(
+    await _trimmer.saveTrimmedVideo(
       startValue: _startValue,
       endValue: _endValue,
+      videoFileName:
+          '${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}-${DateTime.now().hour}-${DateTime.now().minute}-${DateTime.now().second}',
       videoFolderName: videoFolderName,
-      onSave: (outputPath) async {
-        Directory(widget.path).deleteSync(recursive: true);
-        await File(outputPath!).rename(widget.path);
+      storageDir: StorageDir.applicationDocumentsDirectory,
+      onSave: (outputPath) {
+        videoPath = outputPath!;
+        debugPrint(outputPath);
+
+        if (mounted) {
+          context.go(
+            '${widget.caller}?path=$videoPath&id=${widget.id}',
+          );
+        }
       },
     );
   }
@@ -65,23 +82,10 @@ class _TrimmerPageState extends State<TrimmerPage> {
       body: Column(
         children: <Widget>[
           Expanded(
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: VideoViewer(
-                    trimmer: _trimmer,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () async {
-                    await _trimmer.videPlaybackControl(
-                      startValue: _startValue,
-                      endValue: _endValue,
-                    );
-                  },
-                ),
-              ],
+            child: _VideoView(
+              trimmer: _trimmer,
+              startValue: _startValue,
+              endValue: _endValue,
             ),
           ),
           Padding(
@@ -96,48 +100,102 @@ class _TrimmerPageState extends State<TrimmerPage> {
                   fontSize: 0,
                 ),
                 onChangeStart: (value) {
-                  _startValue = value;
+                  setState(() {
+                    _startValue = value;
+                  });
                 },
                 onChangeEnd: (value) {
-                  _endValue = value;
+                  setState(() {
+                    _endValue = value;
+                  });
                 },
                 onChangePlaybackState: (_) {},
               ),
             ),
           ),
-          SizedBox(
-            height: 64,
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: () => context.go(
-                    '${widget.caller}?path=${widget.path}&id=${widget.id}',
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Icon(
-                      Icons.close,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const Expanded(child: SizedBox.shrink()),
-                GestureDetector(
-                  onTap: () {
-                    _saveVideo(context);
-                    context.go(
-                      '${widget.caller}?path=${widget.path}&id=${widget.id}',
-                    );
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Icon(
-                      Icons.done,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
+          _BottomActions(
+            onCancel: () => context.go(
+              '${widget.caller}?path=$videoPath&id=${widget.id}',
+            ),
+            onSave: () {
+              saveVideo(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _VideoView extends StatelessWidget {
+  const _VideoView({
+    Key? key,
+    required Trimmer trimmer,
+    required double startValue,
+    required double endValue,
+  })  : _trimmer = trimmer,
+        _startValue = startValue,
+        _endValue = endValue,
+        super(key: key);
+
+  final Trimmer _trimmer;
+  final double _startValue;
+  final double _endValue;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: VideoViewer(
+            trimmer: _trimmer,
+          ),
+        ),
+        GestureDetector(
+          onTap: () async {
+            await _trimmer.videPlaybackControl(
+              startValue: _startValue,
+              endValue: _endValue,
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _BottomActions extends StatelessWidget {
+  const _BottomActions({Key? key, this.onCancel, this.onSave})
+      : super(key: key);
+  final void Function()? onCancel;
+  final void Function()? onSave;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 64,
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: onCancel,
+            child: const Padding(
+              padding: EdgeInsets.all(16),
+              child: Icon(
+                Icons.close,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          const Expanded(child: SizedBox.shrink()),
+          GestureDetector(
+            onTap: onSave,
+            child: const Padding(
+              padding: EdgeInsets.all(16),
+              child: Icon(
+                Icons.done,
+                color: Colors.white,
+              ),
             ),
           ),
         ],

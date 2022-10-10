@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,16 +12,28 @@ import 'package:video_player/video_player.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
 Future<String> generateThumbnail(String videoPath) async {
+  late final String thumbnailPath;
+  debugPrint(videoPath);
+  Uint8List _bytes;
+  _bytes = (await VideoThumbnail.thumbnailData(
+    video: videoPath,
+    quality: 75,
+  ))!;
+
   final dir = await getApplicationDocumentsDirectory();
   final path = dir.path;
-  final directory = Directory('$path/video');
+  final directory = Directory('$path/thumbnail');
   await directory.create(recursive: true);
-  final thumbnailPath = await VideoThumbnail.thumbnailFile(
-    video: videoPath,
-    thumbnailPath: directory.path,
-  );
+  await File(
+    '${directory.path}${DateTime.now().toString()}-${DateTime.now().microsecondsSinceEpoch}.png',
+  ).create().then((file) {
+    file.writeAsBytesSync(_bytes);
 
-  return thumbnailPath!;
+    thumbnailPath = file.path;
+    debugPrint(thumbnailPath);
+  });
+
+  return thumbnailPath;
 }
 
 class PreviewPage extends StatelessWidget {
@@ -77,60 +90,89 @@ class _PreviewScaffoldState extends State<PreviewScaffold> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          leading: GestureDetector(
-            child: const Icon(Icons.arrow_back),
-            onTap: () {
-              Directory(widget.path).deleteSync(recursive: true);
-              context.go('/');
-            },
-          ),
-          actions: [
-            GestureDetector(
-              child: const Icon(Icons.content_cut),
-              onTap: () => context
-                  .go('/trimmer?path=${widget.path}&caller=/camera/preview/'),
-            ),
-            GestureDetector(
-              child: const Icon(Icons.check),
-              onTap: () async {
-                final thumbnailPath = await generateThumbnail(widget.path);
-                context.read<CameraBloc>().add(
-                      AddVideoEvent(
-                        videoPath: widget.path,
-                        thumbnailPath: thumbnailPath,
-                      ),
-                    );
-                context.go('/');
-              },
-            ),
-          ],
-        ),
+        appBar: _buildAppBar(context),
         extendBodyBehindAppBar: true,
         body: Stack(
           children: [
             VideoPlayer(_videoPlayerController),
-            _ControlsOverlay(controller: _videoPlayerController),
+            ControlsOverlay(controller: _videoPlayerController),
             Align(
               alignment: Alignment.bottomCenter,
-              child: SizedBox(
-                height: 112,
-                child: SmoothVideoProgress(
-                  controller: _videoPlayerController,
-                  builder: (context, position, duration, _) =>
-                      _VideoProgressSlider(
-                    position: position,
-                    duration: duration,
-                    controller: _videoPlayerController,
-                    swatch: Theme.of(context).primaryColor,
-                  ),
-                ),
+              child: SmoothVideoProgressSlider(
+                videoPlayerController: _videoPlayerController,
               ),
             ),
           ],
         ),
       );
+
+  PreferredSizeWidget _buildAppBar(BuildContext context) => AppBar(
+        backgroundColor: Colors.transparent,
+        leading: GestureDetector(
+          child: const Icon(Icons.arrow_back),
+          onTap: () {
+            Directory(widget.path).deleteSync(recursive: true);
+            context.go('/');
+          },
+        ),
+        actions: [
+          GestureDetector(
+            child: const Icon(Icons.content_cut),
+            onTap: () =>
+                context.go('/trimmer?path=${widget.path}&caller=/preview/'),
+          ),
+          GestureDetector(
+            child: const Icon(Icons.check),
+            onTap: () async {
+              final thumbnailPath = await generateThumbnail(widget.path);
+
+              final dir = await getApplicationDocumentsDirectory();
+              final path = dir.path;
+              final directory = Directory('$path/video');
+              await directory.create(recursive: true);
+              final videoFileName =
+                  '${DateTime.now().toString()}-${DateTime.now().microsecondsSinceEpoch}.mp4';
+              final newVideoPath = '${directory.path}/$videoFileName';
+              await File(widget.path).rename(newVideoPath);
+
+              if (!mounted) return;
+              context.read<CameraBloc>().add(
+                    AddVideoEvent(
+                      videoPath: newVideoPath,
+                      thumbnailPath: thumbnailPath,
+                    ),
+                  );
+              context.go('/');
+            },
+          ),
+        ],
+      );
+}
+
+class SmoothVideoProgressSlider extends StatelessWidget {
+  const SmoothVideoProgressSlider({
+    Key? key,
+    required VideoPlayerController videoPlayerController,
+  })  : _videoPlayerController = videoPlayerController,
+        super(key: key);
+
+  final VideoPlayerController _videoPlayerController;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 112,
+      child: SmoothVideoProgress(
+        controller: _videoPlayerController,
+        builder: (context, position, duration, _) => _VideoProgressSlider(
+          position: position,
+          duration: duration,
+          controller: _videoPlayerController,
+          swatch: Theme.of(context).primaryColor,
+        ),
+      ),
+    );
+  }
 }
 
 class _VideoProgressSlider extends StatelessWidget {
@@ -163,16 +205,15 @@ class _VideoProgressSlider extends StatelessWidget {
   }
 }
 
-class _ControlsOverlay extends StatefulWidget {
-  const _ControlsOverlay({Key? key, required this.controller})
-      : super(key: key);
+class ControlsOverlay extends StatefulWidget {
+  const ControlsOverlay({Key? key, required this.controller}) : super(key: key);
   final VideoPlayerController controller;
 
   @override
-  State<_ControlsOverlay> createState() => _ControlsOverlayState();
+  State<ControlsOverlay> createState() => _ControlsOverlayState();
 }
 
-class _ControlsOverlayState extends State<_ControlsOverlay> {
+class _ControlsOverlayState extends State<ControlsOverlay> {
   bool displayIcon = false;
 
   @override

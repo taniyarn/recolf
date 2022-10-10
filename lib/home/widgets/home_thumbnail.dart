@@ -6,8 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:recolf/home/bloc/home_bloc.dart';
 import 'package:recolf/models/video.dart';
 
-class Thumbnail extends StatelessWidget {
-  const Thumbnail({
+class HomeThumbnail extends StatelessWidget {
+  const HomeThumbnail({
     Key? key,
     required this.video,
   }) : super(key: key);
@@ -31,7 +31,7 @@ class Thumbnail extends StatelessWidget {
           Positioned.fill(
             child: GestureDetector(
               onTap: () {
-                context.go('/video?id=${video.id}');
+                context.go('/video?path=${video.videoPath}&id=${video.id}');
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16), // Image border

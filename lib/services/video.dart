@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:hive/hive.dart';
 import 'package:recolf/models/shape.dart';
 import 'package:recolf/models/video.dart';
@@ -45,14 +47,29 @@ class VideoService {
 
   Future<void> updateVideo({
     required String id,
+    required String? videoPath,
+    required String? thumbnailPath,
     required List<Shape> shapes,
   }) async {
     final videoToEdit = _videos.values.firstWhere((v) => v.id == id);
     final index = videoToEdit.key as int;
+
     await _videos.put(
       index,
-      videoToEdit.copyWith(shapes: shapes),
+      videoToEdit.copyWith(
+        videoPath: videoPath,
+        thumbnailPath: thumbnailPath,
+        shapes: shapes,
+      ),
     );
+
+    if (videoPath != null && videoPath != videoToEdit.videoPath) {
+      Directory(videoToEdit.videoPath).deleteSync(recursive: true);
+    }
+
+    if (thumbnailPath != null && thumbnailPath != videoToEdit.thumbnailPath) {
+      Directory(videoToEdit.thumbnailPath).deleteSync(recursive: true);
+    }
   }
 
   void deleteVideos({
