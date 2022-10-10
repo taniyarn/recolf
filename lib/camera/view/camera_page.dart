@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
@@ -58,6 +59,13 @@ class CameraPageState extends State<CameraPage> {
         backgroundColor: Colors.transparent,
         leading: GestureDetector(
           onTap: () {
+            FirebaseAnalytics.instance.logEvent(
+              name: 'screen_transition',
+              parameters: {
+                'from': 'camera',
+                'to': 'home',
+              },
+            );
             context.go('/');
           },
           child: const Icon(Icons.arrow_back_ios),
@@ -142,6 +150,14 @@ class CameraPageState extends State<CameraPage> {
       await directory.create(recursive: true);
       final newPath = '${directory.path}/${xfile.name}';
       await File(xfile.path).rename(newPath);
+
+      await FirebaseAnalytics.instance.logEvent(
+        name: 'screen_transition',
+        parameters: {
+          'from': 'camera',
+          'to': 'preview',
+        },
+      );
       if (!mounted) return;
       context.go('/preview?path=$newPath');
     } catch (_) {}

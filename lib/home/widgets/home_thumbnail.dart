@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -45,6 +46,13 @@ class HomeThumbnail extends StatelessWidget {
                             .add(AddSelectedVideos(video: video));
                         return;
                       }
+                      FirebaseAnalytics.instance.logEvent(
+                        name: 'screen_transition',
+                        parameters: {
+                          'from': 'home',
+                          'to': 'video',
+                        },
+                      );
                       context.go(
                         '/video?path=${video.videoPath}&id=${video.id}',
                       );

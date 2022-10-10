@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -21,24 +22,29 @@ class HomePage extends StatelessWidget {
               ..add(VideosFetched()),
         child: Scaffold(
           appBar: _buildAppBar(context),
+          drawer: _buildDrawer(context),
           body: const _HomePage(),
         ),
       );
 
   PreferredSizeWidget _buildAppBar(BuildContext context) => AppBar(
         backgroundColor: Colors.transparent,
-        leading: GestureDetector(
-          onTap: () {
-            context.go('/');
+        leading: Builder(
+          builder: (context) {
+            return GestureDetector(
+              onTap: () {
+                Scaffold.of(context).openDrawer();
+              },
+              child: const Icon(Icons.menu),
+            );
           },
-          child: const Icon(Icons.menu),
         ),
         title: Center(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/icon/icon.png',
+                'assets/icon/icon_transparent.png',
                 height: 24,
               ),
               const Text(
@@ -51,6 +57,13 @@ class HomePage extends StatelessWidget {
         actions: [
           GestureDetector(
             onTap: () {
+              FirebaseAnalytics.instance.logEvent(
+                name: 'screen_transition',
+                parameters: {
+                  'from': 'home',
+                  'to': 'camera',
+                },
+              );
               context.go('/camera');
             },
             child: const Icon(Icons.add_a_photo_outlined),
@@ -60,6 +73,41 @@ class HomePage extends StatelessWidget {
           )
         ],
       );
+
+  Widget _buildDrawer(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.7,
+      color: Colors.white,
+      child: Column(
+        children: [
+          SizedBox(
+            height: MediaQuery.of(context).padding.top,
+          ),
+          SizedBox(
+            height: kToolbarHeight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/icon/icon_transparent.png',
+                  height: 24,
+                ),
+                const Text(
+                  'Recolf',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                    color: Colors.black,
+                    fontFamily: 'Futura',
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _HomePage extends StatelessWidget {

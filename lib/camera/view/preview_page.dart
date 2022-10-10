@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -94,6 +96,13 @@ class _PreviewScaffoldState extends State<PreviewScaffold> {
           child: const Icon(Icons.arrow_back_ios),
           onTap: () {
             Directory(widget.path).deleteSync(recursive: true);
+            FirebaseAnalytics.instance.logEvent(
+              name: 'screen_transition',
+              parameters: {
+                'from': 'preview',
+                'to': 'home',
+              },
+            );
             context.go('/');
           },
         ),
@@ -103,8 +112,16 @@ class _PreviewScaffoldState extends State<PreviewScaffold> {
           ),
           GestureDetector(
             child: const Icon(Icons.content_cut),
-            onTap: () =>
-                context.go('/trimmer?path=${widget.path}&caller=/preview/'),
+            onTap: () {
+              FirebaseAnalytics.instance.logEvent(
+                name: 'screen_transition',
+                parameters: {
+                  'from': 'preview',
+                  'to': 'trimmer',
+                },
+              );
+              context.go('/trimmer?path=${widget.path}&caller=/preview/');
+            },
           ),
           const SizedBox(
             width: 16,
@@ -121,6 +138,23 @@ class _PreviewScaffoldState extends State<PreviewScaffold> {
                       videoPath: newVideoPath,
                     ),
                   );
+              await FirebaseAnalytics.instance.logEvent(
+                name: 'screen_transition',
+                parameters: {
+                  'from': 'preview',
+                  'to': 'home',
+                },
+              );
+              if (!mounted) return;
+              unawaited(
+                FirebaseAnalytics.instance.logEvent(
+                  name: 'screen_transition',
+                  parameters: {
+                    'from': 'preview',
+                    'to': 'home',
+                  },
+                ),
+              );
               context.go('/');
             },
           ),

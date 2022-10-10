@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "332054087925",
+    "project_id": "recolf-c5551",
+    "storage_bucket": "recolf-c5551.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:332054087925:android:eb243f7f5f0c123ddbddbc",
+        "android_client_info": {
+          "package_name": "com.example.recolf"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "332054087925-bumirfg9ahed9lgm0tb8td3spm43hsun.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJtOv0gqau6FFaXCBBVrLTNv6pxEzMfEI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "332054087925-bumirfg9ahed9lgm0tb8td3spm43hsun.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "332054087925-q3igf3mhb1p29ub3poer1htjpsbjoj7p.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.recolf"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

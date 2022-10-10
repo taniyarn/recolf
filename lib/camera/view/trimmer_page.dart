@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recolf/util.dart';
@@ -59,6 +60,13 @@ class _TrimmerPageState extends State<TrimmerPage> {
         debugPrint(outputPath);
 
         if (mounted) {
+          FirebaseAnalytics.instance.logEvent(
+            name: 'screen_transition',
+            parameters: {
+              'from': 'trimmer',
+              'to': widget.caller.replaceAll('/', ''),
+            },
+          );
           context.go(
             '${widget.caller}?path=$videoPath&id=${widget.id}',
           );
@@ -106,9 +114,18 @@ class _TrimmerPageState extends State<TrimmerPage> {
             ),
           ),
           _BottomActions(
-            onCancel: () => context.go(
-              '${widget.caller}?path=$videoPath&id=${widget.id}',
-            ),
+            onCancel: () {
+              FirebaseAnalytics.instance.logEvent(
+                name: 'screen_transition',
+                parameters: {
+                  'from': 'trimmer',
+                  'to': widget.caller.replaceAll('/', ''),
+                },
+              );
+              context.go(
+                '${widget.caller}?path=$videoPath&id=${widget.id}',
+              );
+            },
             onSave: () {
               saveVideo(context);
             },

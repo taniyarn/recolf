@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -125,6 +127,15 @@ class _VideoScaffoldState extends State<VideoScaffold> {
           }
 
           if (!mounted) return;
+          unawaited(
+            FirebaseAnalytics.instance.logEvent(
+              name: 'screen_transition',
+              parameters: {
+                'from': 'video',
+                'to': 'home',
+              },
+            ),
+          );
           context.go('/');
         },
       ),
@@ -186,9 +197,18 @@ class _VideoScaffoldState extends State<VideoScaffold> {
         ),
         GestureDetector(
           child: const Icon(Icons.content_cut),
-          onTap: () => context.go(
-            '/trimmer?path=${widget.videoPath}&caller=/video&id=${context.read<VideoBloc>().state.video.id}',
-          ),
+          onTap: () {
+            FirebaseAnalytics.instance.logEvent(
+              name: 'screen_transition',
+              parameters: {
+                'from': 'video',
+                'to': 'trimmer',
+              },
+            );
+            context.go(
+              '/trimmer?path=${widget.videoPath}&caller=/video&id=${context.read<VideoBloc>().state.video.id}',
+            );
+          },
         ),
         const SizedBox(
           width: 16,
