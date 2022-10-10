@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:recolf/util.dart';
 import 'package:video_trimmer/video_trimmer.dart';
 
 class TrimmerPage extends StatefulWidget {
@@ -51,8 +51,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
     await _trimmer.saveTrimmedVideo(
       startValue: _startValue,
       endValue: _endValue,
-      videoFileName:
-          '${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}-${DateTime.now().hour}-${DateTime.now().minute}-${DateTime.now().second}',
+      videoFileName: generateVideoName(),
       videoFolderName: videoFolderName,
       storageDir: StorageDir.applicationDocumentsDirectory,
       onSave: (outputPath) {
@@ -70,13 +69,6 @@ class _TrimmerPageState extends State<TrimmerPage> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-    );
     return Scaffold(
       backgroundColor: Colors.grey[900],
       body: Column(

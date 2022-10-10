@@ -10,7 +10,6 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     on<AddVideoEvent>((event, emit) {
       _video.addVideo(
         videoPath: event.videoPath,
-        thumbnailPath: event.thumbnailPath,
       );
     });
   }

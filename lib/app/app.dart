@@ -1,5 +1,5 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recolf/camera/view/camera_page.dart';
@@ -17,15 +17,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) => RepositoryProvider(
         create: (context) => videoService,
         child: MaterialApp.router(
+          localizationsDelegates: context.localizationDelegates,
+          supportedLocales: context.supportedLocales,
+          locale: context.locale,
           theme: ThemeData(
             useMaterial3: true,
             appBarTheme: const AppBarTheme(
-              systemOverlayStyle: SystemUiOverlayStyle.dark,
               foregroundColor: Colors.white,
             ),
             textTheme:
                 const TextTheme(bodyText1: TextStyle(color: Colors.white)),
-            scaffoldBackgroundColor: const Color.fromRGBO(1, 1, 1, 1),
+            scaffoldBackgroundColor: Colors.black,
             primaryColor: const Color.fromRGBO(255, 75, 44, 1),
           ),
           routeInformationParser: _router.routeInformationParser,
@@ -49,7 +51,8 @@ class MyApp extends StatelessWidget {
         path: '/preview',
         builder: (BuildContext context, GoRouterState state) {
           final path = state.queryParams['path'];
-          return PreviewPage(key: ObjectKey(path), path: path!);
+
+          return PreviewPage(path: path!);
         },
       ),
       GoRoute(
@@ -57,6 +60,7 @@ class MyApp extends StatelessWidget {
         builder: (BuildContext context, GoRouterState state) {
           final path = state.queryParams['path'];
           final id = state.queryParams['id'];
+
           return VideoPage(videoPath: path!, id: id!);
         },
       ),

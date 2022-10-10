@@ -14,7 +14,7 @@ class CornerPoint extends StatelessWidget {
         width: kRadius,
         height: kRadius,
         decoration: BoxDecoration(
-          color: Colors.red[300],
+          color: Theme.of(context).primaryColor,
           shape: BoxShape.circle,
         ),
       ),

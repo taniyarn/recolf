@@ -57,8 +57,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     AddSelectedVideos event,
     Emitter<HomeState> emit,
   ) async {
+    final selectedVideos = [...state.selectedVideos];
+    if (selectedVideos.contains(event.video)) {
+      selectedVideos.remove(event.video);
+    } else {
+      selectedVideos.add(event.video);
+    }
     emit(
-      state.copyWith(selectedVideos: [...state.selectedVideos, event.video]),
+      state.copyWith(selectedVideos: selectedVideos),
     );
   }
 

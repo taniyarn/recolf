@@ -39,6 +39,7 @@ class CircleShape extends StatelessWidget {
           onTap: active ? null : onTap,
           child: CustomPaint(
             painter: CirclePainter(
+              context: context,
               topLeft: topLeft,
               bottomRight: bottomRight,
               active: active,
@@ -165,10 +166,12 @@ class CircleShape extends StatelessWidget {
 
 class CirclePainter extends CustomPainter {
   const CirclePainter({
+    required this.context,
     required this.topLeft,
     required this.bottomRight,
     required this.active,
   });
+  final BuildContext context;
   final Offset topLeft;
   final Offset bottomRight;
   final bool active;
@@ -179,7 +182,9 @@ class CirclePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = active ? Colors.red[300]! : const Color.fromARGB(255, 255, 0, 0)
+      ..color = active
+          ? Theme.of(context).primaryColor
+          : Theme.of(context).primaryColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = kStrokeWidth;
 

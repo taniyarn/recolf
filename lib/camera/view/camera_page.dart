@@ -37,11 +37,14 @@ class CameraPageState extends State<CameraPage> {
       final camera = cameras.first;
       _controller = CameraController(
         camera,
-        ResolutionPreset.max,
+        ResolutionPreset.ultraHigh,
+        enableAudio: false,
+        imageFormatGroup: ImageFormatGroup.yuv420,
       );
       await _controller.initialize();
       await _controller.prepareForVideoRecording();
 
+      if (!mounted) return;
       setState(() {
         _isReady = true;
       });
@@ -57,7 +60,7 @@ class CameraPageState extends State<CameraPage> {
           onTap: () {
             context.go('/');
           },
-          child: const Icon(Icons.arrow_back),
+          child: const Icon(Icons.arrow_back_ios),
         ),
       ),
       extendBodyBehindAppBar: true,
@@ -102,13 +105,13 @@ class CameraPageState extends State<CameraPage> {
               height: _isRecording ? 24 : 48,
               duration: const Duration(milliseconds: 100),
               decoration: _isRecording
-                  ? const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      color: Colors.red,
+                  ? BoxDecoration(
+                      borderRadius: const BorderRadius.all(Radius.circular(4)),
+                      color: Theme.of(context).primaryColor,
                     )
-                  : const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(24)),
-                      color: Colors.red,
+                  : BoxDecoration(
+                      borderRadius: const BorderRadius.all(Radius.circular(24)),
+                      color: Theme.of(context).primaryColor,
                     ),
             ),
           ),

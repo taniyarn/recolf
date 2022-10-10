@@ -35,7 +35,8 @@ class LineShape extends StatelessWidget {
           },
           onTap: active ? null : onTap,
           child: CustomPaint(
-            painter: ExampleLine(p1: p1, p2: p2, active: active),
+            painter:
+                ExampleLine(context: context, p1: p1, p2: p2, active: active),
             child: Container(),
           ),
         ),
@@ -83,10 +84,12 @@ class LineShape extends StatelessWidget {
 
 class ExampleLine extends CustomPainter {
   const ExampleLine({
+    required this.context,
     required this.p1,
     required this.p2,
     required this.active,
   });
+  final BuildContext context;
   final Offset p1;
   final Offset p2;
   final bool active;
@@ -94,7 +97,9 @@ class ExampleLine extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = active ? Colors.red[300]! : const Color.fromARGB(255, 255, 0, 0)
+      ..color = active
+          ? Theme.of(context).primaryColor
+          : Theme.of(context).primaryColor
       ..strokeWidth = kStrokeWidth;
 
     canvas.drawLine(p1, p2, paint);

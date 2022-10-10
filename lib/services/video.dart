@@ -15,6 +15,7 @@ class VideoService {
       ..registerAdapter(CircleAdapter())
       ..registerAdapter(VectorAdapter());
     _videos = await Hive.openBox<Video>('videos');
+    await Hive.box<Video>('videos').clear();
   }
 
   List<Video> getVideos() {
@@ -31,7 +32,6 @@ class VideoService {
 
   void addVideo({
     required String videoPath,
-    required String thumbnailPath,
   }) {
     final id = const Uuid().v4();
     final datetime = DateTime.now();
@@ -40,7 +40,6 @@ class VideoService {
         id: id,
         datetime: datetime,
         videoPath: videoPath,
-        thumbnailPath: thumbnailPath,
       ),
     );
   }
@@ -48,7 +47,6 @@ class VideoService {
   Future<void> updateVideo({
     required String id,
     required String? videoPath,
-    required String? thumbnailPath,
     required List<Shape> shapes,
   }) async {
     final videoToEdit = _videos.values.firstWhere((v) => v.id == id);
@@ -58,17 +56,12 @@ class VideoService {
       index,
       videoToEdit.copyWith(
         videoPath: videoPath,
-        thumbnailPath: thumbnailPath,
         shapes: shapes,
       ),
     );
 
     if (videoPath != null && videoPath != videoToEdit.videoPath) {
       Directory(videoToEdit.videoPath).deleteSync(recursive: true);
-    }
-
-    if (thumbnailPath != null && thumbnailPath != videoToEdit.thumbnailPath) {
-      Directory(videoToEdit.thumbnailPath).deleteSync(recursive: true);
     }
   }
 

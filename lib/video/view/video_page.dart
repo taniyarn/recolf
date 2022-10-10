@@ -37,7 +37,6 @@ class VideoScaffold extends StatefulWidget {
 
 class _VideoScaffoldState extends State<VideoScaffold> {
   late VideoPlayerController _videoPlayerController;
-  bool played = false;
 
   @override
   void initState() {
@@ -71,8 +70,21 @@ class _VideoScaffoldState extends State<VideoScaffold> {
         extendBodyBehindAppBar: true,
         body: Stack(
           children: [
-            VideoPlayer(_videoPlayerController),
-            ControlsOverlay(controller: _videoPlayerController),
+            Positioned.fill(
+              child: FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  height: 1,
+                  width: _videoPlayerController.value.aspectRatio,
+                  child: VideoPlayer(_videoPlayerController),
+                ),
+              ),
+            ),
+            ControlsOverlay(
+              controller: _videoPlayerController,
+              onTap: () =>
+                  context.read<VideoBloc>().add(const ShapesDeactivated()),
+            ),
             const DrawView(),
             Align(
               alignment: Alignment.bottomCenter,
@@ -87,16 +99,15 @@ class _VideoScaffoldState extends State<VideoScaffold> {
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.transparent,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () async {
+      leading: GestureDetector(
+        child: const Icon(Icons.arrow_back_ios),
+        onTap: () async {
           if (widget.videoPath ==
               context.read<VideoBloc>().state.video.videoPath) {
             context.read<VideoBloc>().add(
                   const VideoUpdated(),
                 );
           } else {
-            final thumbnailPath = await generateThumbnail(widget.videoPath);
             final dir = await getApplicationDocumentsDirectory();
             final path = dir.path;
             final directory = Directory('$path/video');
@@ -109,7 +120,6 @@ class _VideoScaffoldState extends State<VideoScaffold> {
             context.read<VideoBloc>().add(
                   VideoUpdated(
                     videoPath: newVideoPath,
-                    thumbnailPath: thumbnailPath,
                   ),
                 );
           }
@@ -129,17 +139,20 @@ class _VideoScaffoldState extends State<VideoScaffold> {
                   if (activatedShape.isEmpty)
                     const SizedBox.shrink()
                   else
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: () {
+                    GestureDetector(
+                      child: const Icon(Icons.delete_outline),
+                      onTap: () {
                         context.read<VideoBloc>().add(
                               ShapeRemoved(activatedShape.first),
                             );
                       },
                     ),
-                  IconButton(
-                    icon: Icon(state.type.getIcon()),
-                    onPressed: () {
+                  const SizedBox(
+                    width: 16,
+                  ),
+                  GestureDetector(
+                    child: Icon(state.type.getIcon()),
+                    onTap: () {
                       context.read<VideoBloc>().add(
                             ShapeTypeChanged(state.type.next()),
                           );
@@ -151,13 +164,16 @@ class _VideoScaffoldState extends State<VideoScaffold> {
             return const SizedBox.shrink();
           },
         ),
-        IconButton(
-          icon: BlocBuilder<VideoBloc, VideoState>(
+        const SizedBox(
+          width: 16,
+        ),
+        GestureDetector(
+          child: BlocBuilder<VideoBloc, VideoState>(
             builder: (context, state) {
               return Icon(state.mode.getIcon());
             },
           ),
-          onPressed: () {
+          onTap: () {
             context.read<VideoBloc>().add(
                   VideoModeChanged(
                     context.read<VideoBloc>().state.mode.next(),
@@ -165,11 +181,17 @@ class _VideoScaffoldState extends State<VideoScaffold> {
                 );
           },
         ),
-        IconButton(
-          icon: const Icon(Icons.content_cut),
-          onPressed: () => context.go(
+        const SizedBox(
+          width: 16,
+        ),
+        GestureDetector(
+          child: const Icon(Icons.content_cut),
+          onTap: () => context.go(
             '/trimmer?path=${widget.videoPath}&caller=/video&id=${context.read<VideoBloc>().state.video.id}',
           ),
+        ),
+        const SizedBox(
+          width: 16,
         ),
       ],
     );
