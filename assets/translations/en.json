@@ -1,4 +1,6 @@
 {
-    "delete":"delete",
-    "cancel":"cancel"
+    "delete":"Delete",
+    "cancel":"Cancel",
+    "policy":"Policy",
+    "contact":"Contact"
 }

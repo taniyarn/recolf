@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -77,7 +78,10 @@ class HomePage extends StatelessWidget {
   Widget _buildDrawer(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width * 0.7,
-      color: Colors.white,
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(32)),
+        color: Colors.white,
+      ),
       child: Column(
         children: [
           SizedBox(
@@ -104,6 +108,41 @@ class HomePage extends StatelessWidget {
               ],
             ),
           ),
+          const Divider(),
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 32),
+            horizontalTitleGap: 32,
+            leading: Icon(
+              Icons.info_outline,
+              color: Colors.grey[800],
+            ),
+            title: Text(
+              'policy'.tr(),
+              style: TextStyle(
+                color: Colors.grey[800],
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const Divider(),
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 32),
+            horizontalTitleGap: 32,
+            leading: Icon(
+              Icons.mail_outline,
+              color: Colors.grey[800],
+            ),
+            title: Text(
+              'contact'.tr(),
+              style: TextStyle(
+                color: Colors.grey[800],
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const Divider(),
         ],
       ),
     );
@@ -148,15 +187,13 @@ class _HomePage extends StatelessWidget {
                       );
                     },
                   ),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 100),
-                    child: state.deleteMode
-                        ? const Align(
-                            alignment: Alignment.bottomCenter,
-                            child: _HomeDeleteBottomSheet(),
-                          )
-                        : const SizedBox.shrink(),
-                  ),
+                  if (state.deleteMode)
+                    const Align(
+                      alignment: Alignment.bottomCenter,
+                      child: _HomeDeleteBottomSheet(),
+                    )
+                  else
+                    const SizedBox.shrink(),
                 ],
               );
           }
@@ -170,9 +207,13 @@ class _HomePage extends StatelessWidget {
     for (final video in videos) {
       late String date;
       if (currentYear == video.datetime.year) {
-        date = DateFormat('M/d').format(video.datetime);
+        date = DateFormat(
+          window.locale.languageCode == 'ja' ? 'M/d' : 'MMM. d',
+        ).format(video.datetime);
       } else {
-        date = DateFormat('y/M/d').format(video.datetime);
+        date = DateFormat(
+          window.locale.languageCode == 'ja' ? 'y/M/d' : 'MMM. d, yyyy',
+        ).format(video.datetime);
       }
 
       if (videoMap.containsKey(date)) {
@@ -258,8 +299,8 @@ class _HomeDeleteBottomSheet extends StatelessWidget {
                     'cancel'.tr(),
                     style: TextStyle(
                       color: Theme.of(context).primaryColor,
-                      fontSize: 16,
-                      fontFamily: 'Futura',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -285,8 +326,8 @@ class _HomeDeleteBottomSheet extends StatelessWidget {
                     'delete'.tr(),
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 16,
-                      fontFamily: 'Futura',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),

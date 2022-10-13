@@ -68,37 +68,33 @@ class HomeThumbnail extends StatelessWidget {
                   top: 0,
                   child: BlocBuilder<HomeBloc, HomeState>(
                     builder: (context, state) {
-                      return AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 100),
-                        child: state.deleteMode
-                            ? Align(
-                                alignment: Alignment.bottomCenter,
-                                child: Checkbox(
-                                  fillColor: MaterialStateProperty.resolveWith(
-                                      (states) {
-                                    const interactiveStates = <MaterialState>{
-                                      MaterialState.pressed,
-                                      MaterialState.hovered,
-                                      MaterialState.focused,
-                                      MaterialState.selected
-                                    };
-                                    if (states
-                                        .any(interactiveStates.contains)) {
-                                      return Theme.of(context).primaryColor;
-                                    }
-                                    return Colors.white;
-                                  }),
-                                  value: state.selectedVideos.contains(video),
-                                  shape: const CircleBorder(),
-                                  onChanged: (bool? value) {
-                                    context
-                                        .read<HomeBloc>()
-                                        .add(AddSelectedVideos(video: video));
-                                  },
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                      );
+                      return state.deleteMode
+                          ? Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Checkbox(
+                                fillColor:
+                                    MaterialStateProperty.resolveWith((states) {
+                                  const interactiveStates = <MaterialState>{
+                                    MaterialState.pressed,
+                                    MaterialState.hovered,
+                                    MaterialState.focused,
+                                    MaterialState.selected
+                                  };
+                                  if (states.any(interactiveStates.contains)) {
+                                    return Theme.of(context).primaryColor;
+                                  }
+                                  return Colors.white;
+                                }),
+                                value: state.selectedVideos.contains(video),
+                                shape: const CircleBorder(),
+                                onChanged: (bool? value) {
+                                  context
+                                      .read<HomeBloc>()
+                                      .add(AddSelectedVideos(video: video));
+                                },
+                              ),
+                            )
+                          : const SizedBox.shrink();
                     },
                   ),
                 ),
