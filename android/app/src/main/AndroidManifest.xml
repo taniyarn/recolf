@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.recolf">
+    package="com.recolf.recolf">
    <application
         android:label="Recolf"
         android:name="${applicationName}"

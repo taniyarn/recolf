@@ -63,7 +63,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '332054087925',
     projectId: 'recolf-c5551',
     storageBucket: 'recolf-c5551.appspot.com',
-    iosClientId: '332054087925-q3igf3mhb1p29ub3poer1htjpsbjoj7p.apps.googleusercontent.com',
-    iosBundleId: 'com.example.recolf',
+    iosClientId:
+        '332054087925-q3igf3mhb1p29ub3poer1htjpsbjoj7p.apps.googleusercontent.com',
+    iosBundleId: 'com.recolf.recolf',
   );
 }

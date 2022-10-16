@@ -57,12 +57,6 @@ class MyApp extends StatelessWidget {
           final id = state.queryParams['id'];
           return VideoPage(videoPath: path!, id: id!);
         },
-        // builder: (BuildContext context, GoRouterState state) {
-        //   final path = state.queryParams['path'];
-        //   final id = state.queryParams['id'];
-
-        //   return VideoPage(videoPath: path!, id: id!);
-        // },
       ),
       GoRoute(
         path: '/trimmer',
@@ -87,13 +81,7 @@ CustomTransitionPage<void> _buildPageWithAnimation(Widget page, Offset begin) {
           begin: const Offset(-1, 0),
           end: Offset.zero,
         ).animate(animation),
-        child: SlideTransition(
-          position: Tween<Offset>(
-            begin: Offset.zero,
-            end: const Offset(-1, 0),
-          ).animate(secondaryAnimation),
-          child: child,
-        ),
+        child: child,
       );
     },
   );

@@ -1,4 +1,4 @@
-package com.example.recolf
+package com.recolf.recolf
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:332054087925:android:eb243f7f5f0c123ddbddbc",
         "android_client_info": {
-          "package_name": "com.example.recolf"
+          "package_name": "com.recolf.recolf"
         }
       },
       "oauth_client": [
@@ -34,7 +34,7 @@
               "client_id": "332054087925-q3igf3mhb1p29ub3poer1htjpsbjoj7p.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.recolf"
+                "bundle_id": "com.recolf.recolf"
               }
             }
           ]
