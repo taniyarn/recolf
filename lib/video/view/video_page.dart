@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:recolf/camera/view/preview_page.dart';
 import 'package:recolf/services/video.dart';
 import 'package:recolf/video/bloc/video_bloc.dart';
 import 'package:recolf/video/util.dart';
 import 'package:recolf/video/view/draw_view.dart';
+import 'package:smooth_video_progress/smooth_video_progress.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPage extends StatelessWidget {
@@ -136,7 +136,7 @@ class _VideoScaffoldState extends State<VideoScaffold> {
               },
             ),
           );
-          context.go('/');
+          context.go('/home?caller=/video');
         },
       ),
       actions: [
@@ -212,6 +212,117 @@ class _VideoScaffoldState extends State<VideoScaffold> {
         ),
         const SizedBox(
           width: 16,
+        ),
+      ],
+    );
+  }
+}
+
+class SmoothVideoProgressSlider extends StatelessWidget {
+  const SmoothVideoProgressSlider({
+    Key? key,
+    required VideoPlayerController videoPlayerController,
+  })  : _videoPlayerController = videoPlayerController,
+        super(key: key);
+
+  final VideoPlayerController _videoPlayerController;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 112,
+      child: SmoothVideoProgress(
+        controller: _videoPlayerController,
+        builder: (context, position, duration, _) => _VideoProgressSlider(
+          position: position,
+          duration: duration,
+          controller: _videoPlayerController,
+          swatch: Theme.of(context).primaryColor,
+        ),
+      ),
+    );
+  }
+}
+
+class _VideoProgressSlider extends StatelessWidget {
+  const _VideoProgressSlider({
+    required this.position,
+    required this.duration,
+    required this.controller,
+    required this.swatch,
+  });
+
+  final Duration position;
+  final Duration duration;
+  final VideoPlayerController controller;
+  final Color swatch;
+
+  @override
+  Widget build(BuildContext context) {
+    final max = duration.inMilliseconds.toDouble();
+    final value = position.inMilliseconds.clamp(0, max).toDouble();
+    return Slider(
+      max: max,
+      value: value,
+      onChanged: (value) =>
+          controller.seekTo(Duration(milliseconds: value.toInt())),
+      onChangeStart: (_) => controller.pause(),
+      onChangeEnd: (_) => controller.play(),
+      activeColor: swatch,
+      inactiveColor: Colors.white,
+    );
+  }
+}
+
+class ControlsOverlay extends StatefulWidget {
+  const ControlsOverlay({
+    Key? key,
+    required this.controller,
+    this.onTap,
+  }) : super(key: key);
+  final VideoPlayerController controller;
+  final VoidCallback? onTap;
+  @override
+  State<ControlsOverlay> createState() => _ControlsOverlayState();
+}
+
+class _ControlsOverlayState extends State<ControlsOverlay> {
+  bool displayIcon = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 100),
+          child: displayIcon
+              ? Container(
+                  color: Colors.black12,
+                  child: Center(
+                    child: Icon(
+                      widget.controller.value.isPlaying
+                          ? Icons.play_arrow
+                          : Icons.pause,
+                      color: Colors.white,
+                      size: 108,
+                    ),
+                  ),
+                )
+              : const SizedBox.shrink(),
+        ),
+        GestureDetector(
+          onTap: () {
+            widget.controller.value.isPlaying
+                ? widget.controller.pause()
+                : widget.controller.play();
+            widget.onTap?.call();
+            displayIcon = true;
+            Future<void>.delayed(const Duration(milliseconds: 500)).then(
+              (_) => setState(
+                () => displayIcon = false,
+              ),
+            );
+          },
         ),
       ],
     );

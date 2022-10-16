@@ -15,7 +15,6 @@ class VideoService {
       ..registerAdapter(CircleAdapter())
       ..registerAdapter(VectorAdapter());
     _videos = await Hive.openBox<Video>('videos');
-    await Hive.box<Video>('videos').clear();
   }
 
   List<Video> getVideos() {

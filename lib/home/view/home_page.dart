@@ -10,6 +10,7 @@ import 'package:recolf/home/bloc/home_bloc.dart';
 import 'package:recolf/home/widgets/home_thumbnail.dart';
 import 'package:recolf/models/video.dart';
 import 'package:recolf/services/video.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 final Map<String, Widget> _cache = {};
 
@@ -65,7 +66,7 @@ class HomePage extends StatelessWidget {
                   'to': 'camera',
                 },
               );
-              context.go('/camera');
+              context.go('/');
             },
             child: const Icon(Icons.add_a_photo_outlined),
           ),
@@ -124,6 +125,13 @@ class HomePage extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
+            onTap: () async {
+              final _url = Uri.parse('https://recolf.com/privacy');
+              if (!await launchUrl(_url)) {
+                // ignore: only_throw_errors
+                throw 'Could not launch $_url';
+              }
+            },
           ),
           const Divider(),
           ListTile(
@@ -141,6 +149,13 @@ class HomePage extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
+            onTap: () async {
+              final _url = Uri.parse('https://recolf.com/contact');
+              if (!await launchUrl(_url)) {
+                // ignore: only_throw_errors
+                throw 'Could not launch $_url';
+              }
+            },
           ),
           const Divider(),
         ],
@@ -171,7 +186,8 @@ class _HomePage extends StatelessWidget {
                     itemCount: dates.length,
                     itemBuilder: (context, index) {
                       final date = dates[index];
-                      final videos = videoMap[date];
+                      final videos = videoMap[date]
+                        ?..sort((a, b) => b.datetime.compareTo(a.datetime));
                       return Column(
                         children: [
                           Container(
@@ -208,11 +224,11 @@ class _HomePage extends StatelessWidget {
       late String date;
       if (currentYear == video.datetime.year) {
         date = DateFormat(
-          window.locale.languageCode == 'ja' ? 'M/d' : 'MMM. d',
+          window.locale.languageCode == 'ja' ? 'M/d' : 'MMM d',
         ).format(video.datetime);
       } else {
         date = DateFormat(
-          window.locale.languageCode == 'ja' ? 'y/M/d' : 'MMM. d, yyyy',
+          window.locale.languageCode == 'ja' ? 'y/M/d' : 'MMM d, yyyy',
         ).format(video.datetime);
       }
 

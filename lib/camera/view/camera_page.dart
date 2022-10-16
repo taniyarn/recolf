@@ -3,19 +3,35 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:recolf/camera/bloc/camera_bloc.dart';
+import 'package:recolf/services/video.dart';
+import 'package:recolf/util.dart';
 
-class CameraPage extends StatefulWidget {
-  const CameraPage({
+class CameraPage extends StatelessWidget {
+  const CameraPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) =>
+          CameraBloc(RepositoryProvider.of<VideoService>(context)),
+      child: const CameraScaffold(),
+    );
+  }
+}
+
+class CameraScaffold extends StatefulWidget {
+  const CameraScaffold({
     Key? key,
   }) : super(key: key);
 
   @override
-  CameraPageState createState() => CameraPageState();
+  CameraScaffoldState createState() => CameraScaffoldState();
 }
 
-class CameraPageState extends State<CameraPage> {
+class CameraScaffoldState extends State<CameraScaffold> {
   late CameraController _controller;
   bool _isReady = false;
   bool _isRecording = false;
@@ -57,19 +73,21 @@ class CameraPageState extends State<CameraPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        leading: GestureDetector(
-          onTap: () {
-            FirebaseAnalytics.instance.logEvent(
-              name: 'screen_transition',
-              parameters: {
-                'from': 'camera',
-                'to': 'home',
-              },
-            );
-            context.go('/');
-          },
-          child: const Icon(Icons.arrow_back_ios),
-        ),
+        leading: _isReady
+            ? GestureDetector(
+                onTap: () {
+                  FirebaseAnalytics.instance.logEvent(
+                    name: 'screen_transition',
+                    parameters: {
+                      'from': 'camera',
+                      'to': 'home',
+                    },
+                  );
+                  context.go('/home?caller=/');
+                },
+                child: const Icon(Icons.photo_library_outlined),
+              )
+            : const SizedBox.shrink(),
       ),
       extendBodyBehindAppBar: true,
       body: _isReady
@@ -144,22 +162,23 @@ class CameraPageState extends State<CameraPage> {
   Future<void> _stopRecording() async {
     try {
       final xfile = await _controller.stopVideoRecording();
-      final dir = await getApplicationDocumentsDirectory();
-      final path = dir.path;
-      final directory = Directory('$path/video');
-      await directory.create(recursive: true);
-      final newPath = '${directory.path}/${xfile.name}';
-      await File(xfile.path).rename(newPath);
+      final newVideoPath = '${await generateVideoPath()}.mp4';
+      await File(xfile.path).rename(newVideoPath);
 
       await FirebaseAnalytics.instance.logEvent(
         name: 'screen_transition',
         parameters: {
           'from': 'camera',
-          'to': 'preview',
+          'to': 'home',
         },
       );
       if (!mounted) return;
-      context.go('/preview?path=$newPath');
+      context.read<CameraBloc>().add(
+            AddVideoEvent(
+              videoPath: newVideoPath,
+            ),
+          );
+      context.go('/home?caller=/');
     } catch (_) {}
   }
 }

@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recolf/camera/view/camera_page.dart';
-import 'package:recolf/camera/view/preview_page.dart';
-import 'package:recolf/camera/view/trimmer_page.dart';
 import 'package:recolf/home/view/home_page.dart';
 import 'package:recolf/services/video.dart';
+import 'package:recolf/video/view/trimmer_page.dart';
 import 'package:recolf/video/view/video_page.dart';
 
 class MyApp extends StatelessWidget {
@@ -39,30 +38,31 @@ class MyApp extends StatelessWidget {
     routes: <GoRoute>[
       GoRoute(
         path: '/',
-        builder: (BuildContext context, GoRouterState state) =>
+        builder: (context, state) => const CameraPage(),
+      ),
+      GoRoute(
+        path: '/home',
+        pageBuilder: (context, state) {
+          final caller = state.queryParams['caller'];
+          return _buildPageWithAnimation(
             const HomePage(),
-      ),
-      GoRoute(
-        path: '/camera',
-        builder: (BuildContext context, GoRouterState state) =>
-            const CameraPage(),
-      ),
-      GoRoute(
-        path: '/preview',
-        builder: (BuildContext context, GoRouterState state) {
-          final path = state.queryParams['path'];
-
-          return PreviewPage(path: path!);
+            Offset(caller == '/' ? -1 : 1, 0),
+          );
         },
       ),
       GoRoute(
         path: '/video',
-        builder: (BuildContext context, GoRouterState state) {
+        builder: (context, state) {
           final path = state.queryParams['path'];
           final id = state.queryParams['id'];
-
           return VideoPage(videoPath: path!, id: id!);
         },
+        // builder: (BuildContext context, GoRouterState state) {
+        //   final path = state.queryParams['path'];
+        //   final id = state.queryParams['id'];
+
+        //   return VideoPage(videoPath: path!, id: id!);
+        // },
       ),
       GoRoute(
         path: '/trimmer',
@@ -74,5 +74,27 @@ class MyApp extends StatelessWidget {
         },
       ),
     ],
+  );
+}
+
+CustomTransitionPage<void> _buildPageWithAnimation(Widget page, Offset begin) {
+  return CustomTransitionPage<void>(
+    child: page,
+    transitionDuration: const Duration(milliseconds: 200),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(-1, 0),
+          end: Offset.zero,
+        ).animate(animation),
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: Offset.zero,
+            end: const Offset(-1, 0),
+          ).animate(secondaryAnimation),
+          child: child,
+        ),
+      );
+    },
   );
 }
