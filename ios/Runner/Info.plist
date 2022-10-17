@@ -8,9 +8,9 @@
 			<string>ja</string>
 		</array>
 		<key>NSCameraUsageDescription</key>
-		<string>Used to demonstrate image picker plugin</string>
+		<string>Request for the purpose of shooting video for display and use in the app.</string>
 		<key>NSMicrophoneUsageDescription</key>
-		<string>Used to demonstrate image picker plugin</string>
+		<string>Request for the purpose of shooting video for display and use in the app.</string>
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>

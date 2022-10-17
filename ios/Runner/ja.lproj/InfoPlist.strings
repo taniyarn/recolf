@@ -1,0 +1,2 @@
+NSCameraUsageDescription="アプリ内で表示・使用するための動画撮影を目的としたリクエストです。";
+NSMicrophoneUsageDescription="アプリ内で表示・使用するための動画撮影を目的としたリクエストです。";
