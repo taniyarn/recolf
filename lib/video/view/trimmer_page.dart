@@ -95,6 +95,7 @@ class _TrimmerPageState extends State<TrimmerPage> {
               child: TrimEditor(
                 fit: BoxFit.cover,
                 trimmer: _trimmer,
+                circlePaintColor: Theme.of(context).primaryColor,
                 viewerWidth: MediaQuery.of(context).size.width - 32,
                 durationTextStyle: const TextStyle(
                   fontSize: 0,
